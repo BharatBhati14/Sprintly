@@ -8,6 +8,20 @@
       "when": 1788355856521,
       "tag": "0000_gifted_runaways",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1788442909530,
+      "tag": "0001_plain_silver_sable",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788446920606,
+      "tag": "0002_ambitious_captain_flint",
+      "breakpoints": true
     }
   ]
 }
