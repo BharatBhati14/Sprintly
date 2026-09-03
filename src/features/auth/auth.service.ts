@@ -1,9 +1,8 @@
-"use server";
-import { RegisterInput } from "./auth.validation";
+import type { LoginInput, RegisterInput } from "./auth.validation";
 import { db } from "@/db";
 import { users } from "@/db/schemas";
 import { eq } from "drizzle-orm";
-import { hash } from "argon2";
+import { hash, verify } from "argon2";
 import { sessions } from "@/db/schemas/sessions";
 import { randomBytes } from "crypto";
 
@@ -16,13 +15,6 @@ function generateSessionToken(): string {
 function getSessionExpiry(): Date {
   return new Date(Date.now() + SESSION_DURATION_MS);
 }
-
-const ARGON2_OPTIONS = {
-  memoryCost: 19456,
-  timeCost: 2,
-  outputLen: 32,
-  parallelism: 1,
-};
 
 export async function registerUser(input: RegisterInput) {
   try {
@@ -89,4 +81,46 @@ export async function registerUser(input: RegisterInput) {
       status: 500,
     };
   }
+}
+
+export async function loginUser(input: LoginInput) {
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, input.email))
+    .limit(1);
+
+  if (!user) {
+    throw new Error("Invalid Credentials");
+  }
+
+  const isPasswordValid = await verify(user.password, input.password);
+
+  if (!isPasswordValid) {
+    throw new Error("Invalid Credentials");
+  }
+
+  const sessionToken = generateSessionToken();
+  const expiresAt = getSessionExpiry();
+
+  const [session] = await db
+    .insert(sessions)
+    .values({
+      id: sessionToken,
+      userId: user.id,
+      expiresAt,
+    })
+    .returning();
+
+  if (!session) {
+    throw new Error("Session Creation Failed");
+  }
+
+  const { password: _, ...safeUser } = user;
+
+  return {
+    user: safeUser,
+    sessionToken,
+    expiresAt,
+  };
 }

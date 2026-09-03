@@ -44,6 +44,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(
       {
+        success: true,
         user: registration.result,
       },
       { status: 201 },
