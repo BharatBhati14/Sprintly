@@ -19,7 +19,7 @@ export const organizationMemberRoleEnum = pgEnum("member_role", [
 export const organization_members = pgTable(
   "organization_members",
   {
-    id: uuid().defaultRandom().primaryKey(),
+    id: uuid().defaultRandom().primaryKey().notNull(),
     organization_id: uuid()
       .notNull()
       .references(() => organizations.id, {

@@ -3,7 +3,7 @@ import { index, pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 export const organizations = pgTable(
   "organizations",
   {
-    id: uuid().defaultRandom().primaryKey(),
+    id: uuid().defaultRandom().primaryKey().notNull(),
     name: varchar({ length: 250 }).notNull(),
     slug: varchar({ length: 250 }).notNull().unique(),
     createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),

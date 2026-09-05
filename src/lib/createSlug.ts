@@ -1,4 +1,4 @@
-export function slugify(str: string, maxLen = 200): string {
+export function createSlug(str: string, maxLen = 200): string {
   let slug = str
     .replace(/ß/g, "ss")
     .toLowerCase()
