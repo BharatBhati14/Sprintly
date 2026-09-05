@@ -16,7 +16,7 @@ interface ICreateOrg {
 }
 
 export async function createOrganization(
-  user: Omit<User, "password">,
+  userId: string,
   input: OrganizationInput,
 ): Promise<ICreateOrg> {
   const { organization, orgMember } = await db.transaction(async (tx) => {
@@ -63,7 +63,7 @@ export async function createOrganization(
       .insert(organization_members)
       .values({
         organization_id: organization.id,
-        user_id: user.id,
+        user_id: userId,
         role: "OWNER",
       })
       .returning();
