@@ -7,3 +7,4 @@ export * from "./issues";
 export * from "./labels";
 export * from "./issueLabels";
 export * from "./sessions";
+export * from "./organization-invitations";
