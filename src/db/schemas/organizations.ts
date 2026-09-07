@@ -1,4 +1,5 @@
 import { index, pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { users } from "./users";
 
 export const organizations = pgTable(
   "organizations",
@@ -6,6 +7,11 @@ export const organizations = pgTable(
     id: uuid().defaultRandom().primaryKey().notNull(),
     name: varchar({ length: 250 }).notNull(),
     slug: varchar({ length: 250 }).notNull().unique(),
+    // created_by: uuid("created_by")
+    //   .notNull()
+    //   .references(() => users.id, {
+    //     onDelete: "cascade",
+    //   }),
     createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
   },
