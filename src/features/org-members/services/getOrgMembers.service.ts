@@ -1,22 +1,8 @@
 import { db } from "@/db";
 import { organization_members, users } from "@/db/schemas";
-import { getCurrentUser } from "@/features/auth/current-user";
-import { requireOrganizationMember } from "@/server/authorization/organization-access";
 import { eq } from "drizzle-orm";
 
 export async function getOrganizationMembers(organizationId: string) {
-  const user = await getCurrentUser();
-
-  if (!user) {
-    throw new Error("Unauthorized");
-  }
-
-  const isOrgMember = await requireOrganizationMember(user.id, organizationId);
-
-  if (!isOrgMember) {
-    throw new Error("User is not member of Organization");
-  }
-
   const members = await db
     .select({
       userId: users.id,

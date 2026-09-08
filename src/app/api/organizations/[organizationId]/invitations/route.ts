@@ -1,6 +1,9 @@
 import { getCurrentUser } from "@/features/auth/current-user";
 import { CreateInvitation } from "@/features/invitations/services/createInvitation.service";
 import { invitationSchema } from "@/features/invitations/validations/invitation.validation";
+import { AuthorizationError } from "@/server/authorization/authorization-error";
+import { permissions } from "@/server/authorization/permissions";
+import { requireOrganizationPermission } from "@/server/authorization/require-permission";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(
@@ -20,9 +23,15 @@ export async function POST(
       );
     }
 
-    const body = await request.json();
     const { organizationId } = await params;
 
+    await requireOrganizationPermission(
+      user.id,
+      organizationId,
+      permissions.member.invite,
+    );
+
+    const body = await request.json();
     const result = invitationSchema.safeParse(body);
 
     if (!result.success) {
@@ -68,16 +77,18 @@ export async function POST(
       error,
     );
 
-    if (
-      error instanceof Error &&
-      error.message === "Insufficient Permissions"
-    ) {
+    if (error instanceof AuthorizationError) {
       return NextResponse.json(
         {
           success: false,
-          error: "Only Owner And Admins Are Allowed",
+          error:
+            error.status === 401
+              ? "Unauthorized"
+              : error.status === 404
+                ? "Organization Not Found"
+                : "Forbidden",
         },
-        { status: 403 },
+        { status: error.status },
       );
     }
 

@@ -4,7 +4,6 @@ import {
   organizationInvitations,
   users,
 } from "@/db/schemas";
-import { requireOrganizationMember } from "@/server/authorization/organization-access";
 import { and, eq, gt, isNull } from "drizzle-orm";
 
 type InputType = {
@@ -18,12 +17,6 @@ export async function CreateInvitation({
   organizationId,
   email,
 }: InputType) {
-  const validMember = await requireOrganizationMember(userId, organizationId);
-
-  if (validMember.role !== "OWNER" && validMember.role !== "ADMIN") {
-    throw new Error("Insufficient Permissions");
-  }
-
   const [existingUser] = await db
     .select()
     .from(users)

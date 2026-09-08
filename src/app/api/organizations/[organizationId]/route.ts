@@ -4,7 +4,9 @@ import { getCurrentUser } from "@/features/auth/current-user";
 import { deleteOrganization } from "@/features/organizations/services/deleteOrganization.service";
 import { updateOrganization } from "@/features/organizations/services/updateOrganization.service";
 import { updateOrganizationSchema } from "@/features/organizations/validations/organization.validation";
-import { requireOrganizationMember } from "@/server/authorization/organization-access";
+import { AuthorizationError } from "@/server/authorization/authorization-error";
+// import { requireOrganizationMember } from "@/server/authorization/organization-access";
+import { requireOrganizationPermission } from "@/server/authorization/require-permission";
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -30,17 +32,12 @@ export async function GET(
       );
     }
 
-    try {
-      await requireOrganizationMember(user.id, organizationId);
-    } catch {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Organization Not Found",
-        },
-        { status: 404 },
-      );
-    }
+    // await requireOrganizationMember(user.id, organizationId);
+    await requireOrganizationPermission(
+      user.id,
+      organizationId,
+      "organization.read",
+    );
 
     const [organization] = await db
       .select()
@@ -67,6 +64,16 @@ export async function GET(
     );
   } catch (error) {
     console.error("GET /api/organizations/:organizationId failed:", error);
+
+    if (error instanceof AuthorizationError) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: error.status === 404 ? "Organization Not Found" : "Forbidden",
+        },
+        { status: error.status },
+      );
+    }
 
     return NextResponse.json(
       {
@@ -104,30 +111,18 @@ export async function PATCH(
 
     const { organizationId } = await params;
 
-    try {
-      const validMember = await requireOrganizationMember(
-        user.id,
-        organizationId,
-      );
+    // const validMember = await requireOrganizationMember(
+    //   user.id,
+    //   organizationId,
+    // );
 
-      if (validMember.role !== "OWNER") {
-        return NextResponse.json(
-          {
-            success: false,
-            error: "Forbidden",
-          },
-          { status: 403 },
-        );
-      }
-    } catch {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Organization Not Found",
-        },
-        { status: 404 },
-      );
-    }
+    const validMember = await requireOrganizationPermission(
+      user.id,
+      organizationId,
+      "organization.update",
+    );
+
+    // if (validMember.role !== "OWNER") {
 
     const body = await request.json();
 
@@ -183,6 +178,16 @@ export async function PATCH(
       );
     }
 
+    if (error instanceof AuthorizationError) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: error.status === 404 ? "Organization Not Found" : "Forbidden",
+        },
+        { status: error.status },
+      );
+    }
+
     return NextResponse.json(
       {
         success: false,
@@ -219,30 +224,12 @@ export async function DELETE(
 
     const { organizationId } = await params;
 
-    try {
-      const validMember = await requireOrganizationMember(
-        user.id,
-        organizationId,
-      );
-
-      if (validMember.role !== "OWNER") {
-        return NextResponse.json(
-          {
-            success: false,
-            error: "Forbidden",
-          },
-          { status: 403 },
-        );
-      }
-    } catch {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Organization Not Found",
-        },
-        { status: 404 },
-      );
-    }
+    // if (validMember.role !== "OWNER")
+    const validMember = await requireOrganizationPermission(
+      user.id,
+      organizationId,
+      "organization.delete",
+    );
 
     const deletedOrganization = await deleteOrganization(organizationId);
 
@@ -265,6 +252,16 @@ export async function DELETE(
     );
   } catch (error) {
     console.error("DELETE /api/organizations/:organizationId failed:", error);
+
+    if (error instanceof AuthorizationError) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: error.status === 404 ? "Organization Not Found" : "Forbidden",
+        },
+        { status: error.status },
+      );
+    }
 
     return NextResponse.json(
       {

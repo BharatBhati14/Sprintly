@@ -1,4 +1,8 @@
+import { getCurrentUser } from "@/features/auth/current-user";
 import { getOrganizationMembers } from "@/features/org-members/services/getOrgMembers.service";
+import { AuthorizationError } from "@/server/authorization/authorization-error";
+import { permissions } from "@/server/authorization/permissions";
+import { requireOrganizationPermission } from "@/server/authorization/require-permission";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -6,7 +10,24 @@ export async function GET(
   { params }: { params: Promise<{ organizationId: string }> },
 ) {
   try {
+    const user = await getCurrentUser();
+
+    if (!user) {
+      throw new AuthorizationError("Unauthorized", 401);
+    }
+
     const { organizationId } = await params;
+
+    // const isOrgMember = await requireOrganizationMember(
+    //   user.id,
+    //   organizationId,
+    // );
+
+    await requireOrganizationPermission(
+      user.id,
+      organizationId,
+      permissions.member.read,
+    );
 
     const members = await getOrganizationMembers(organizationId);
 
@@ -24,29 +45,14 @@ export async function GET(
       error,
     );
 
-    if (error instanceof Error) {
-      if (error.message === "Unauthorized") {
-        return NextResponse.json(
-          {
-            success: false,
-            error: "Unauthorized",
-          },
-          { status: 401 },
-        );
-      }
-
-      if (
-        error.message === "User is not member of Organization" ||
-        error.message === "Organization membership not found"
-      ) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: "User is not member of Organization",
-          },
-          { status: 404 },
-        );
-      }
+    if (error instanceof AuthorizationError) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: error.status === 404 ? "Organization Not Found" : "Forbidden",
+        },
+        { status: error.status },
+      );
     }
 
     return NextResponse.json(
