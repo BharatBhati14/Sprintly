@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { organization_members, OrganizationMember } from "@/db/schemas";
 import { and, eq } from "drizzle-orm";
+import { AuthorizationError } from "./authorization-error";
 
 export async function requireOrganizationMember(
   userId: string,
@@ -18,7 +19,7 @@ export async function requireOrganizationMember(
     .limit(1);
 
   if (!membership) {
-    throw new Error("Organization membership not found");
+    throw new AuthorizationError("Organization membership not found", 404);
   }
 
   return membership;
