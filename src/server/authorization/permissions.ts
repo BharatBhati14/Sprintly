@@ -20,6 +20,7 @@ export const permissions = {
     read: "project.read",
     create: "project.create",
     update: "project.update",
+    archive: "project.archive",
     delete: "project.delete",
   },
 
@@ -48,6 +49,7 @@ const allPermissions: Permission[] = [
   permissions.project.read,
   permissions.project.create,
   permissions.project.update,
+  permissions.project.archive,
   permissions.project.delete,
 
   permissions.issue.read,
@@ -74,6 +76,7 @@ export const rolePermissions: Record<
     permissions.project.read,
     permissions.project.create,
     permissions.project.update,
+    permissions.project.archive,
     permissions.project.delete,
 
     permissions.issue.read,
@@ -89,6 +92,7 @@ export const rolePermissions: Record<
     permissions.project.read,
     permissions.project.create,
     permissions.project.update,
+    permissions.project.archive,
     permissions.project.delete,
 
     permissions.issue.read,
