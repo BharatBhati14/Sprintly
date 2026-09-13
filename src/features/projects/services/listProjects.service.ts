@@ -10,6 +10,7 @@ export async function listProjects(
   return await db
     .select({
       id: projects.id,
+      organizationId: projects.org_id,
       name: projects.name,
       key: projects.key,
       description: projects.description,
