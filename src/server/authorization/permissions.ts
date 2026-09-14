@@ -29,6 +29,9 @@ export const permissions = {
     create: "issue.create",
     update: "issue.update",
     delete: "issue.delete",
+    assign: "issue.assign",
+    changeStatus: "issue.change_status",
+    changePriority: "issue.change_priority",
   },
 } as const;
 
@@ -56,6 +59,9 @@ const allPermissions: Permission[] = [
   permissions.issue.create,
   permissions.issue.update,
   permissions.issue.delete,
+  permissions.issue.assign,
+  permissions.issue.changeStatus,
+  permissions.issue.changePriority,
 ];
 
 export const rolePermissions: Record<
@@ -83,6 +89,9 @@ export const rolePermissions: Record<
     permissions.issue.create,
     permissions.issue.update,
     permissions.issue.delete,
+    permissions.issue.assign,
+    permissions.issue.changeStatus,
+    permissions.issue.changePriority,
   ]),
 
   MEMBER: new Set([
@@ -98,7 +107,9 @@ export const rolePermissions: Record<
     permissions.issue.read,
     permissions.issue.create,
     permissions.issue.update,
-    permissions.issue.delete,
+    permissions.issue.assign,
+    permissions.issue.changeStatus,
+    permissions.issue.changePriority,
   ]),
 
   VIEWER: new Set([
