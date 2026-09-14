@@ -1,5 +1,10 @@
 import { db } from "@/db";
-import { projects, type Project, type OrganizationMember } from "@/db/schemas";
+import {
+  projects,
+  type Project,
+  type OrganizationMember,
+  projectMembers,
+} from "@/db/schemas";
 import { and, eq } from "drizzle-orm";
 import { AuthorizationError } from "./authorization-error";
 import { requireOrganizationPermission } from "./require-permission";
@@ -30,6 +35,21 @@ export async function requireProjectPermission(
 
   if (!project) {
     throw new AuthorizationError("Project Not Found", 404);
+  }
+
+  const [projectMember] = await db
+    .select()
+    .from(projectMembers)
+    .where(
+      and(
+        eq(projectMembers.project_id, projectId),
+        eq(projectMembers.user_id, userId),
+      ),
+    )
+    .limit(1);
+
+  if (!projectMember) {
+    throw new AuthorizationError("You do not have access to this project", 403);
   }
 
   return {

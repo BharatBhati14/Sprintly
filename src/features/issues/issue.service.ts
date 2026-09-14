@@ -1,9 +1,14 @@
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { issues, projectMembers, projects } from "@/db/schemas";
-import type { CreateIssueInput, IssueListQuery } from "./issue.validation";
+import type {
+  CreateIssueInput,
+  IssueListQuery,
+  UpdateIssueInput,
+} from "./issue.validation";
 import { AuthorizationError } from "@/server/authorization/authorization-error";
 
+// get issues
 export async function getIssues(projectId: string, filters: IssueListQuery) {
   const conditions = [eq(issues.project_id, projectId)];
 
@@ -26,6 +31,7 @@ export async function getIssues(projectId: string, filters: IssueListQuery) {
     .orderBy(desc(issues.number));
 }
 
+// ######## create issue #############
 export async function createIssue(
   organizationId: string,
   projectId: string,
@@ -143,4 +149,116 @@ export async function createIssue(
       identifier: `${lockedProject.key}-${issue.number}`,
     };
   });
+}
+
+// ########### get individual issue #############
+
+export async function getIssue(projectId: string, issueId: string) {
+  const [issue] = await db
+    .select()
+    .from(issues)
+    .where(and(eq(issues.id, issueId), eq(issues.project_id, projectId)))
+    .limit(1);
+
+  return issue ?? null;
+}
+
+// ############# update issue ################
+
+export async function updateIssue(
+  projectId: string,
+  issueId: string,
+  data: UpdateIssueInput,
+) {
+  return await db.transaction(async (tx) => {
+    const [existingIssue] = await tx
+      .select()
+      .from(issues)
+      .where(and(eq(issues.id, issueId), eq(issues.project_id, projectId)))
+      .limit(1);
+
+    if (!existingIssue) {
+      throw new AuthorizationError("Issue Not Found", 404);
+    }
+
+    if (data.assigneeId) {
+      const [assigneeMembership] = await tx
+        .select()
+        .from(projectMembers)
+        .where(
+          and(
+            eq(projectMembers.project_id, projectId),
+            eq(projectMembers.user_id, data.assigneeId),
+          ),
+        )
+        .limit(1);
+
+      if (!assigneeMembership) {
+        throw new AuthorizationError(
+          "Assignee must be a member of this project",
+          403,
+        );
+      }
+    }
+
+    const updateData: Partial<typeof issues.$inferInsert> = {};
+
+    if (data.title !== undefined) {
+      updateData.title = data.title;
+    }
+
+    if (data.description !== undefined) {
+      updateData.desc = data.description;
+    }
+
+    if (data.status !== undefined) {
+      updateData.status = data.status;
+    }
+
+    if (data.priority !== undefined) {
+      updateData.priority = data.priority;
+    }
+
+    if (data.assigneeId !== undefined && data.assigneeId !== null) {
+      updateData.assignee_id = data.assigneeId;
+    }
+
+    if (data.dueDate !== undefined) {
+      updateData.due_date = data.dueDate;
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      throw new Error("No fields to update");
+    }
+
+    const [updatedIssue] = await tx
+      .update(issues)
+      .set({
+        ...updateData,
+        updated_at: new Date(),
+      })
+      .where(and(eq(issues.id, issueId), eq(issues.project_id, projectId)))
+      .returning();
+
+    if (!updatedIssue) {
+      throw new Error("Failed to update issue");
+    }
+
+    return updatedIssue;
+  });
+}
+
+// ################# delete issue ######################
+
+export async function deleteIssue(projectId: string, issueId: string) {
+  const [deletedIssue] = await db
+    .delete(issues)
+    .where(and(eq(issues.id, issueId), eq(issues.project_id, projectId)))
+    .returning();
+
+  if (!deletedIssue) {
+    throw new AuthorizationError("Issue Not Found", 404);
+  }
+
+  return deletedIssue;
 }
