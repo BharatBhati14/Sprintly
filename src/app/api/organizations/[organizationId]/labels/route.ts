@@ -33,7 +33,7 @@ export async function GET(
     await requireOrganizationPermission(
       user.id,
       organizationId,
-      permissions.label.create,
+      permissions.label.read,
     );
 
     const labels = await getLabels(organizationId);
