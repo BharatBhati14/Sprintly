@@ -33,6 +33,13 @@ export const permissions = {
     changeStatus: "issue.change_status",
     changePriority: "issue.change_priority",
   },
+
+  label: {
+    read: "label.read",
+    create: "label.create",
+    update: "label.update",
+    delete: "label.delete",
+  },
 } as const;
 
 export type Permission = {
@@ -62,6 +69,11 @@ const allPermissions: Permission[] = [
   permissions.issue.assign,
   permissions.issue.changeStatus,
   permissions.issue.changePriority,
+
+  permissions.label.read,
+  permissions.label.create,
+  permissions.label.update,
+  permissions.label.delete,
 ];
 
 export const rolePermissions: Record<
@@ -92,6 +104,11 @@ export const rolePermissions: Record<
     permissions.issue.assign,
     permissions.issue.changeStatus,
     permissions.issue.changePriority,
+
+    permissions.label.read,
+    permissions.label.create,
+    permissions.label.update,
+    permissions.label.delete,
   ]),
 
   MEMBER: new Set([
@@ -110,6 +127,10 @@ export const rolePermissions: Record<
     permissions.issue.assign,
     permissions.issue.changeStatus,
     permissions.issue.changePriority,
+
+    permissions.label.read,
+    permissions.label.create,
+    permissions.label.update,
   ]),
 
   VIEWER: new Set([
@@ -117,5 +138,6 @@ export const rolePermissions: Record<
     permissions.member.read,
     permissions.project.read,
     permissions.issue.read,
+    permissions.label.read,
   ]),
 };
