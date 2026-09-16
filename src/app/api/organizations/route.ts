@@ -2,6 +2,7 @@ import { getCurrentUser } from "@/features/auth/current-user";
 import { createOrganization } from "@/features/organizations/services/createOrganization.service";
 import { getListOrganization } from "@/features/organizations/services/getListOfOrganizations.service";
 import { organizationSchema } from "@/features/organizations/validations/organization.validation";
+import { paginationQuerySchema } from "@/lib/pagination/pagination";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
@@ -9,7 +10,7 @@ import { NextRequest, NextResponse } from "next/server";
  * @returns List of Organizations
  */
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const user = await getCurrentUser();
 
@@ -23,12 +24,26 @@ export async function GET() {
       );
     }
 
-    const organizations = await getListOrganization(user.id);
+    const { searchParams } = new URL(request.url);
+
+    const query = paginationQuerySchema.safeParse({
+      page: searchParams.get("page") ?? undefined,
+      limit: searchParams.get("limit") ?? undefined,
+    });
+    if (!query.success) {
+      return NextResponse.json(
+        { success: false, error: "Invalid pagination parameters" },
+        { status: 400 },
+      );
+    }
+
+    const result = await getListOrganization(user.id, query.data);
 
     return NextResponse.json(
       {
         success: true,
-        organizations,
+        organizations: result.data,
+        pagination: result.pagination,
       },
       { status: 200 },
     );
