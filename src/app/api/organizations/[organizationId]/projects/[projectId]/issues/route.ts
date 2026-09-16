@@ -42,6 +42,7 @@ export async function GET(
       status: searchParams.get("status") ?? undefined,
       priority: searchParams.get("priority") ?? undefined,
       assigneeId: searchParams.get("assigneeId") ?? undefined,
+      labelId: searchParams.get("labelId") ?? undefined,
     };
 
     const result = issueListQuerySchema.safeParse(query);
@@ -57,7 +58,7 @@ export async function GET(
       );
     }
 
-    const issues = await getIssues(projectId, result.data);
+    const issues = await getIssues(organizationId, projectId, result.data);
 
     return NextResponse.json(
       {

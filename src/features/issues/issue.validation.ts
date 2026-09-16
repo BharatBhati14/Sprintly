@@ -92,8 +92,18 @@ export const issueListQuerySchema = z
     priority: issuePrioritySchema.optional(),
 
     assigneeId: z.uuid("Invalid assignee ID").optional(),
+
+    labelId: z.uuid("Invalid label ID").optional(),
   })
   .strict();
+
+export const replaceIssueLabelsSchema = z.object({
+  labelIds: z
+    .array(z.uuid("Invalid label ID"))
+    .refine((labelIds) => new Set(labelIds).size === labelIds.length, {
+      message: "Duplicate label IDs are not allowed",
+    }),
+});
 
 export type IssueStatus = z.infer<typeof issueStatusSchema>;
 
@@ -106,3 +116,5 @@ export type UpdateIssueInput = z.infer<typeof updateIssueSchema>;
 export type ChangeIssueStatusInput = z.infer<typeof changeIssueStatusSchema>;
 
 export type IssueListQuery = z.infer<typeof issueListQuerySchema>;
+
+export type ReplaceIssueLabelsInput = z.infer<typeof replaceIssueLabelsSchema>;
