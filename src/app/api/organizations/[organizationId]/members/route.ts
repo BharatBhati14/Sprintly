@@ -34,7 +34,7 @@ export async function GET(
     return NextResponse.json(
       {
         success: true,
-        members,
+        data: members,
         message: "Members Fetched Successfully",
       },
       { status: 200 },

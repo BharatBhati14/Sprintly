@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils/utils";
 
 type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger";
 
-type ButtonSize = "sm" | "md" | "lg";
+type ButtonSize = "sm" | "md" | "lg" | "icon";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
@@ -26,6 +26,7 @@ const sizeClasses: Record<ButtonSize, string> = {
   sm: "h-8 px-3 text-xs",
   md: "h-9 px-3.5 text-sm",
   lg: "h-10 px-4 text-sm",
+  icon: "h-12 px-4.5"
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(

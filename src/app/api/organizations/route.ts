@@ -42,7 +42,7 @@ export async function GET(request: Request) {
     return NextResponse.json(
       {
         success: true,
-        organizations: result.data,
+        data: result.data,
         pagination: result.pagination,
       },
       { status: 200 },
@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
       {
         success: true,
         message: "Organization Created Successfully",
-        organization,
+        data: organization,
         orgMember,
       },
       { status: 201 },
