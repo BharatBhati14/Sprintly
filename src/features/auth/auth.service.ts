@@ -2,7 +2,8 @@ import type { LoginInput, RegisterInput } from "./auth.validation";
 import { db } from "@/db";
 import { users } from "@/db/schemas";
 import { eq } from "drizzle-orm";
-import { hash, verify } from "argon2";
+// import { hash, verify } from "argon2";
+import bcrypt from "bcryptjs";
 import { sessions } from "@/db/schemas/sessions";
 import { randomBytes } from "crypto";
 
@@ -33,7 +34,7 @@ export async function registerUser(input: RegisterInput) {
 
     const sessionToken = generateSessionToken();
     const expiresAt = getSessionExpiry();
-    const passwordHash = await hash(input.password);
+    const passwordHash = await bcrypt.hash(input.password, 10);
 
     const result = await db.transaction(async (tx) => {
       const [user] = await tx
@@ -94,7 +95,7 @@ export async function loginUser(input: LoginInput) {
     throw new Error("Invalid Credentials");
   }
 
-  const isPasswordValid = await verify(user.password, input.password);
+  const isPasswordValid = await bcrypt.compare(input.password, user.password);
 
   if (!isPasswordValid) {
     throw new Error("Invalid Credentials");

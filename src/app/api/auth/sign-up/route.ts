@@ -1,7 +1,6 @@
 import { setSessionCookie } from "@/features/auth/auth.cookies";
 import { registerUser } from "@/features/auth/auth.service";
-import { RegisterInput, registerSchema } from "@/features/auth/auth.validation";
-import { env } from "@/lib/env";
+import { registerSchema } from "@/features/auth/auth.validation";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
