@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import { Loader2, MoreVertical, Shield, Trash2 } from "lucide-react";
-
 import { Badge, Button, Card } from "@/components/ui";
-
 import type {
   OrganizationMember,
   OrganizationRole,
@@ -67,7 +65,7 @@ export function OrganizationMembers({
   };
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="">
       <div className="border-b border-zinc-200 px-6 py-4">
         <div className="flex items-center justify-between">
           <div>

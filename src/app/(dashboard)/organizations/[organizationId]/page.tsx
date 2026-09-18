@@ -4,17 +4,13 @@ import { ArrowLeft, Settings } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-
 import { AppShell, PageHeader } from "@/components/layout";
-
 import { Button, Card, Skeleton } from "@/components/ui";
-
 import { useAuth } from "@/features/auth/auth.hooks";
-
 import { OrganizationMembers } from "@/features/organizations/components";
-
 import { useOrganization } from "@/features/organizations/useOrganization";
-
+import { UserPlus } from "lucide-react";
+import { InviteMemberDialog } from "@/features/invitations/components/InviteMemberDialog";
 import type {
   OrganizationMember,
   OrganizationRole,
@@ -26,7 +22,6 @@ import {
   updateMemberRole,
   removeMember,
 } from "@/features/organizations/organization.api";
-import { refresh } from "next/cache";
 
 export default function OrganizationPage() {
   const params = useParams<{ organizationId: string }>();
@@ -34,11 +29,12 @@ export default function OrganizationPage() {
 
   const { user } = useAuth();
 
-  const { organization, members, isLoading, error, reload } =
+  const { organization, members, isLoading, error, reload, refresh } =
     useOrganization(organizationId);
 
   const [selectedMember, setSelectedMember] =
     useState<OrganizationMember | null>(null);
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
 
   const currentMember = members.find((member) => member.userId === user?.id);
 
@@ -130,6 +126,21 @@ export default function OrganizationPage() {
             }
           />
         </div>
+
+        {(currentMember?.role === "OWNER" ||
+          currentMember?.role === "ADMIN") && (
+          <Button type="button" onClick={() => setInviteDialogOpen(true)}>
+            <UserPlus className="h-4 w-4" />
+            Invite member
+          </Button>
+        )}
+
+        <InviteMemberDialog
+          orgName={organization.name}
+          organizationId={organizationId}
+          open={inviteDialogOpen}
+          onClose={() => setInviteDialogOpen(false)}
+        />
 
         <div className="mt-8">
           <OrganizationMembers

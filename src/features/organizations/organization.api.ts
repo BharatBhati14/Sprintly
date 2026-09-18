@@ -8,6 +8,19 @@ import type {
   UpdateOrganizationInput,
 } from "./organization.types";
 
+export interface CreateInvitationInput {
+  email: string;
+}
+
+export interface OrganizationInvitation {
+  id: string;
+  organizationId: string;
+  email: string;
+  token: string;
+  expiresAt: string;
+  createdAt: string;
+}
+
 export async function getOrganizations(): Promise<Organization[]> {
   return apiClient<Organization[]>("/api/organizations", {
     method: "GET",
@@ -76,4 +89,18 @@ export async function removeMember(
       method: "DELETE",
     },
   );
+}
+
+export async function createOrganizationInvitation(
+  organizationId: string,
+  input: CreateInvitationInput,
+): Promise<OrganizationInvitation> {
+  const response = await apiClient<{
+    invitation: OrganizationInvitation;
+  }>(`/api/organizations/${organizationId}/invitations`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+
+  return response.invitation;
 }

@@ -67,7 +67,7 @@ export async function POST(
       {
         success: true,
         message: "Invitation Created Successfully",
-        invitation,
+        data: { invitation },
       },
       { status: 201 },
     );
@@ -78,15 +78,26 @@ export async function POST(
     );
 
     if (error instanceof AuthorizationError) {
+      const response =
+        error.status === 401
+          ? {
+              code: "UNAUTHORIZED",
+              message: "You must be signed in.",
+            }
+          : error.status === 404
+            ? {
+                code: "ORGANIZATION_NOT_FOUND",
+                message: "Organization not found.",
+              }
+            : {
+                code: "FORBIDDEN",
+                message: "You do not have permission to invite members.",
+              };
+
       return NextResponse.json(
         {
           success: false,
-          error:
-            error.status === 401
-              ? "Unauthorized"
-              : error.status === 404
-                ? "Organization Not Found"
-                : "Forbidden",
+          error: response,
         },
         { status: error.status },
       );
@@ -99,7 +110,10 @@ export async function POST(
       return NextResponse.json(
         {
           success: false,
-          error: "User Is Already A Member",
+          error: {
+            code: "USER_ALREADY_MEMBER",
+            message: "This user is already a member of the organization.",
+          },
         },
         { status: 409 },
       );
@@ -112,7 +126,10 @@ export async function POST(
       return NextResponse.json(
         {
           success: false,
-          error: "User Was Already Sent An Invitation",
+          error: {
+            code: "INVITATION_ALREADY_PENDING",
+            message: "An invitation is already pending for this email address.",
+          },
         },
         { status: 409 },
       );
@@ -121,7 +138,10 @@ export async function POST(
     return NextResponse.json(
       {
         success: false,
-        error: "Something Went Wrong",
+        error: {
+          code: "INVITATION_CREATION_FAILED",
+          message: "Failed to create invitation.",
+        },
       },
       { status: 500 },
     );

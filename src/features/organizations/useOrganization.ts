@@ -49,5 +49,6 @@ export function useOrganization(organizationId: string) {
     isLoading,
     error,
     reload: loadOrganization,
+    refresh: loadOrganization,
   };
 }
