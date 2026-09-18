@@ -2,30 +2,33 @@ import { acceptInvitation } from "@/features/invitations/services/acceptInvitati
 import { NextResponse } from "next/server";
 
 export async function POST(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ token: string }> },
 ) {
   try {
     const { token } = await params;
 
     if (!token) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: "INVALID_INVITATION_TOKEN",
+            message: "Invitation token is required.",
+          },
+        },
+        { status: 400 },
+      );
     }
-    // .catch(() => {
-    //   return NextResponse.json(
-    //     {
-    //       success: false,
-    //       message: "Invalid or empty token",
-    //     },
-    //     { status: 400 },
-    //   );
-    // });
 
     const memberCreated = await acceptInvitation(token);
 
     return NextResponse.json(
       {
         success: true,
-        member: memberCreated,
+        data: {
+          member: memberCreated,
+        },
         message: "Invitation accepted",
       },
       { status: 200 },
@@ -37,7 +40,10 @@ export async function POST(
       return NextResponse.json(
         {
           success: false,
-          error: "Unauthorized",
+          error: {
+            code: "UNAUTHORIZED",
+            message: "You must be logged in to accept this invitation.",
+          },
         },
         { status: 401 },
       );
@@ -50,7 +56,10 @@ export async function POST(
       return NextResponse.json(
         {
           success: false,
-          error: "User is already a member of this organization",
+          error: {
+            code: "ALREADY_MEMBER",
+            message: "You are already a member of this organization.",
+          },
         },
         { status: 409 },
       );
@@ -63,7 +72,10 @@ export async function POST(
       return NextResponse.json(
         {
           success: false,
-          error: "Invitation Does Not Exists Or Has Expired",
+          error: {
+            code: "INVITATION_INVALID_OR_EXPIRED",
+            message: "This invitation does not exist or has expired.",
+          },
         },
         { status: 400 },
       );
@@ -76,7 +88,10 @@ export async function POST(
       return NextResponse.json(
         {
           success: false,
-          error: "Invitation email does not match.",
+          error: {
+            code: "INVITATION_EMAIL_MISMATCH",
+            message: "This invitation was sent to a different email address.",
+          },
         },
         { status: 403 },
       );
@@ -85,7 +100,10 @@ export async function POST(
     return NextResponse.json(
       {
         success: false,
-        error: "Something went wrong",
+        error: {
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Something went wrong.",
+        },
       },
       { status: 500 },
     );

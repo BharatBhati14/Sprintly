@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { ApiError } from "@/lib/api/errors";
@@ -9,6 +9,12 @@ import { Button, Input } from "@/components/ui";
 import { useAuth } from "../auth.hooks";
 
 export function LoginForm() {
+  const searchParams = useSearchParams();
+  // const redirectTo = searchParams.get("redirect") || "/";
+  const redirectParam = searchParams.get("redirect");
+  const redirectTo =
+    redirectParam && redirectParam.startsWith("/") ? redirectParam : "/";
+
   const router = useRouter();
   const { login } = useAuth();
 
@@ -52,10 +58,11 @@ export function LoginForm() {
       });
 
       router.replace("/dashboard");
-    //   router.refresh();
+      router.replace(redirectTo);
+      //   router.refresh();
     } catch (error) {
       if (error instanceof ApiError) {
-        if (error.status === 401 || error.status===404) {
+        if (error.status === 401 || error.status === 404) {
           setError("Invalid email or password");
         } else {
           setError(error.message);

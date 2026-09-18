@@ -9,7 +9,7 @@ export default function RegisterPage() {
         </h1>
 
         <p className="mt-2 text-sm text-zinc-500">
-          Start managing your work with TaskFlow.
+          Start managing your work with Sprintly.
         </p>
       </div>
 
