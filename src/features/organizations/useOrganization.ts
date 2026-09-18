@@ -4,13 +4,20 @@ import { useCallback, useEffect, useState } from "react";
 
 import { ApiError } from "@/lib/api/errors";
 
-import { getOrganization, getOrganizationMembers } from "./organization.api";
+import {
+  getOrganization,
+  getOrganizationMembers,
+  updateOrganization as updateOrganizationApi,
+} from "./organization.api";
 
-import type { Organization, OrganizationMember } from "./organization.types";
+import type {
+  Organization,
+  OrganizationMember,
+  UpdateOrganizationInput,
+} from "./organization.types";
 
 export function useOrganization(organizationId: string) {
   const [organization, setOrganization] = useState<Organization | null>(null);
-
   const [members, setMembers] = useState<OrganizationMember[]>([]);
 
   const [isLoading, setIsLoading] = useState(true);
@@ -39,6 +46,20 @@ export function useOrganization(organizationId: string) {
     }
   }, [organizationId]);
 
+  const updateOrganization = useCallback(
+    async (input: UpdateOrganizationInput) => {
+      const updatedOrganization = await updateOrganizationApi(
+        organizationId,
+        input,
+      );
+
+      setOrganization(updatedOrganization);
+
+      return updatedOrganization;
+    },
+    [organizationId],
+  );
+
   useEffect(() => {
     loadOrganization();
   }, [loadOrganization]);
@@ -50,5 +71,6 @@ export function useOrganization(organizationId: string) {
     error,
     reload: loadOrganization,
     refresh: loadOrganization,
+    updateOrganization,
   };
 }

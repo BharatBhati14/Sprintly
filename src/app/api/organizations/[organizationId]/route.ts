@@ -11,7 +11,7 @@ import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   {
     params,
   }: {
@@ -103,7 +103,10 @@ export async function PATCH(
       return NextResponse.json(
         {
           success: false,
-          error: "Unauthorized",
+          error: {
+            code: "UNAUTHORIZED",
+            message: "Unauthorized",
+          },
         },
         { status: 401 },
       );
@@ -111,18 +114,11 @@ export async function PATCH(
 
     const { organizationId } = await params;
 
-    // const validMember = await requireOrganizationMember(
-    //   user.id,
-    //   organizationId,
-    // );
-
-    const validMember = await requireOrganizationPermission(
+    await requireOrganizationPermission(
       user.id,
       organizationId,
       "organization.update",
     );
-
-    // if (validMember.role !== "OWNER") {
 
     const body = await request.json();
 
@@ -132,7 +128,10 @@ export async function PATCH(
       return NextResponse.json(
         {
           success: false,
-          error: "Validation Failed",
+          error: {
+            code: "VALIDATION_FAILED",
+            message: "Validation failed",
+          },
         },
         { status: 400 },
       );
@@ -147,7 +146,10 @@ export async function PATCH(
       return NextResponse.json(
         {
           success: false,
-          error: "Organization Not Found",
+          error: {
+            code: "ORGANIZATION_NOT_FOUND",
+            message: "Organization not found.",
+          },
         },
         { status: 404 },
       );
@@ -156,7 +158,7 @@ export async function PATCH(
     return NextResponse.json(
       {
         success: true,
-        updatedOrganization,
+        data: updatedOrganization,
       },
       { status: 200 },
     );
@@ -172,7 +174,10 @@ export async function PATCH(
       return NextResponse.json(
         {
           success: false,
-          error: "Slug Already Exists",
+          error: {
+            code: "SLUG_ALREADY_EXISTS",
+            message: "Organization with this slug already exists.",
+          },
         },
         { status: 409 },
       );
@@ -182,7 +187,16 @@ export async function PATCH(
       return NextResponse.json(
         {
           success: false,
-          error: error.status === 404 ? "Organization Not Found" : "Forbidden",
+          error:
+            error.status === 404
+              ? {
+                  code: "ORGANIZATION_NOT_FOUND",
+                  message: "Organization not found.",
+                }
+              : {
+                  code: "FORBIDDEN",
+                  message: "Forbidden",
+                },
         },
         { status: error.status },
       );
@@ -191,7 +205,10 @@ export async function PATCH(
     return NextResponse.json(
       {
         success: false,
-        error: "Failed To Update Organization",
+        error: {
+          code: "UPDATION_FAILED",
+          message: "Organization updation failed.",
+        },
       },
       { status: 500 },
     );
@@ -206,7 +223,7 @@ export async function PATCH(
  */
 
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ organizationId: string }> },
 ) {
   try {
@@ -216,7 +233,10 @@ export async function DELETE(
       return NextResponse.json(
         {
           success: false,
-          error: "Unauthorized",
+          error: {
+            code: "UNAUTHORIZED",
+            message: "Unauthorized",
+          },
         },
         { status: 401 },
       );
@@ -225,7 +245,7 @@ export async function DELETE(
     const { organizationId } = await params;
 
     // if (validMember.role !== "OWNER")
-    const validMember = await requireOrganizationPermission(
+    await requireOrganizationPermission(
       user.id,
       organizationId,
       "organization.delete",
@@ -237,7 +257,10 @@ export async function DELETE(
       return NextResponse.json(
         {
           success: false,
-          error: "Organization Not Found",
+          error: {
+            code: "ORGANIZATION_NOT_FOUND",
+            message: "Organization not found.",
+          },
         },
         { status: 404 },
       );
@@ -246,7 +269,7 @@ export async function DELETE(
     return NextResponse.json(
       {
         success: true,
-        deletedOrganization,
+        data: deletedOrganization,
       },
       { status: 200 },
     );
@@ -257,7 +280,16 @@ export async function DELETE(
       return NextResponse.json(
         {
           success: false,
-          error: error.status === 404 ? "Organization Not Found" : "Forbidden",
+          error:
+            error.status === 404
+              ? {
+                  code: "ORGANIZATION_NOT_FOUND",
+                  message: "Organization not found.",
+                }
+              : {
+                  code: "FORBIDDEN",
+                  message: "Forbidden",
+                },
         },
         { status: error.status },
       );
@@ -266,7 +298,10 @@ export async function DELETE(
     return NextResponse.json(
       {
         success: false,
-        error: "Failed To Delete Organization",
+        error: {
+          code: "ORGANIZATION_DELETE_FAILED",
+          message: "Failed to delete organization",
+        },
       },
       { status: 500 },
     );

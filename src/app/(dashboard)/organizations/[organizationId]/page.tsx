@@ -5,9 +5,12 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { AppShell, PageHeader } from "@/components/layout";
-import { Button, Card, Skeleton } from "@/components/ui";
+import { Button, Card, Dialog, Skeleton } from "@/components/ui";
 import { useAuth } from "@/features/auth/auth.hooks";
-import { OrganizationMembers } from "@/features/organizations/components";
+import {
+  OrganizationMembers,
+  OrganizationSettingsForm,
+} from "@/features/organizations/components";
 import { useOrganization } from "@/features/organizations/useOrganization";
 import { UserPlus } from "lucide-react";
 import { InviteMemberDialog } from "@/features/invitations/components/InviteMemberDialog";
@@ -17,8 +20,6 @@ import type {
 } from "@/features/organizations/organization.types";
 
 import {
-  getOrganization,
-  getOrganizationMembers,
   updateMemberRole,
   removeMember,
 } from "@/features/organizations/organization.api";
@@ -29,12 +30,20 @@ export default function OrganizationPage() {
 
   const { user } = useAuth();
 
-  const { organization, members, isLoading, error, reload, refresh } =
-    useOrganization(organizationId);
+  const {
+    organization,
+    members,
+    isLoading,
+    error,
+    reload,
+    refresh,
+    updateOrganization,
+  } = useOrganization(organizationId);
 
   const [selectedMember, setSelectedMember] =
     useState<OrganizationMember | null>(null);
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const currentMember = members.find((member) => member.userId === user?.id);
 
@@ -118,7 +127,15 @@ export default function OrganizationPage() {
             description={`@${organization.slug}`}
             actions={
               canManageMembers ? (
-                <Button variant="secondary" className="gap-2">
+                // <Button variant="secondary" className="gap-2">
+                //   <Settings className="h-4 w-4" />
+                //   Settings
+                // </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setSettingsOpen(true)}
+                >
                   <Settings className="h-4 w-4" />
                   Settings
                 </Button>
@@ -126,6 +143,15 @@ export default function OrganizationPage() {
             }
           />
         </div>
+        {/* {organization && currentMember && (
+          <OrganizationSettings
+            organization={organization}
+            currentUserRole={currentMember.role}
+            onSave={async (input) => {
+              await updateOrganization(input);
+            }}
+          />
+        )} */}
 
         {(currentMember?.role === "OWNER" ||
           currentMember?.role === "ADMIN") && (
@@ -156,6 +182,26 @@ export default function OrganizationPage() {
           <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
             Member management UI will be connected in the next step.
           </div>
+        )}
+
+        {organization && currentMember && (
+          <Dialog
+            open={settingsOpen}
+            onClose={() => setSettingsOpen(false)}
+            title="Organization settings"
+            description="Manage your organization's basic information."
+          >
+            <OrganizationSettingsForm
+              organization={organization}
+              canManage={
+                currentMember.role === "OWNER" || currentMember.role === "ADMIN"
+              }
+              onSave={async (input) => {
+                await updateOrganization(input);
+                setSettingsOpen(false);
+              }}
+            />
+          </Dialog>
         )}
       </div>
     </AppShell>
