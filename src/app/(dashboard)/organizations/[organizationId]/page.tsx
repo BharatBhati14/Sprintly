@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Settings, Trash2 } from "lucide-react";
+import { ArrowLeft, Layers, Settings, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
@@ -145,24 +145,28 @@ export default function OrganizationPage() {
               ) : undefined
             }
           />
-        </div>
-        {/* {organization && currentMember && (
-          <OrganizationSettings
-            organization={organization}
-            currentUserRole={currentMember.role}
-            onSave={async (input) => {
-              await updateOrganization(input);
-            }}
-          />
-        )} */}
 
-        {(currentMember?.role === "OWNER" ||
-          currentMember?.role === "ADMIN") && (
-          <Button type="button" onClick={() => setInviteDialogOpen(true)}>
-            <UserPlus className="h-4 w-4" />
-            Invite member
-          </Button>
-        )}
+          <div className=" border-b border-zinc-200 pb-6">
+            <Button type="button" variant="primary" className="mr-6">
+              <Layers className="h-4 w-4" />
+              <Link href={`/organizations/${organizationId}/projects`}>
+                View Projects
+              </Link>{" "}
+            </Button>
+
+            {(currentMember?.role === "OWNER" ||
+              currentMember?.role === "ADMIN") && (
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setInviteDialogOpen(true)}
+              >
+                <UserPlus className="h-4 w-4" />
+                Invite member
+              </Button>
+            )}
+          </div>
+        </div>
 
         <InviteMemberDialog
           orgName={organization.name}

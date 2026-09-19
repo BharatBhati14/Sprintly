@@ -22,6 +22,7 @@ export async function getProject(projectId: string, organizationId: string) {
 // update project by id
 
 export async function updateProject(
+  organizationId: string,
   projectId: string,
   input: UpdateProjectInput,
 ) {
@@ -31,7 +32,7 @@ export async function updateProject(
       ...input,
       updatedAt: new Date(),
     })
-    .where(eq(projects.id, projectId))
+    .where(and(eq(projects.id, projectId), eq(projects.org_id, organizationId)))
     .returning();
 
   if (!project) {
@@ -43,14 +44,17 @@ export async function updateProject(
 
 // archive project by id
 
-export async function archiveProject(projectId: string) {
+export async function archiveProject(
+  organizationId: string,
+  projectId: string,
+) {
   const [project] = await db
     .update(projects)
     .set({
       status: "ARCHIVED",
       updatedAt: new Date(),
     })
-    .where(eq(projects.id, projectId))
+    .where(and(eq(projects.id, projectId), eq(projects.org_id, organizationId)))
     .returning();
 
   if (!project) {
@@ -61,10 +65,10 @@ export async function archiveProject(projectId: string) {
 }
 
 // delete project by id
-export async function deleteProject(projectId: string) {
+export async function deleteProject(organizationId: string, projectId: string) {
   const [deletedProject] = await db
     .delete(projects)
-    .where(eq(projects.id, projectId))
+    .where(and(eq(projects.id, projectId), eq(projects.org_id, organizationId)))
     .returning();
 
   if (!deletedProject) {

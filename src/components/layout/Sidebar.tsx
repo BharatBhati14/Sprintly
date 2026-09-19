@@ -69,9 +69,7 @@ export function Sidebar() {
           </div>
 
           <div className="px-2 py-2">
-            <p className="text-xs text-zinc-400">
-              Projects will appear here.
-            </p>
+            <p className="text-xs text-zinc-400">Projects will appear here.</p>
           </div>
         </div>
 

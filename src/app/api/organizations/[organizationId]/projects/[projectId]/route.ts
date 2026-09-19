@@ -42,7 +42,7 @@ export async function GET(
     return NextResponse.json(
       {
         success: true,
-        project,
+        data: project,
         message: "Project Fetched Successfully",
       },
       { status: 200 },
@@ -90,7 +90,7 @@ export async function GET(
   }
 }
 
-// ############# PATCH ##################
+// ########################### PATCH ########################
 
 export async function PATCH(
   request: Request,
@@ -133,12 +133,16 @@ export async function PATCH(
       );
     }
 
-    const updatedProject = await updateProject(projectId, result.data);
+    const updatedProject = await updateProject(
+      organizationId,
+      projectId,
+      result.data,
+    );
 
     return NextResponse.json(
       {
         success: true,
-        project: updatedProject,
+        data: updatedProject,
         message: "Project Updated Successfully",
       },
       { status: 200 },
@@ -215,12 +219,12 @@ export async function POST(
       permissions.project.update,
     );
 
-    const project = await archiveProject(projectId);
+    const project = await archiveProject(organizationId, projectId);
 
     return NextResponse.json(
       {
         success: true,
-        project,
+        data: project,
         message: "Project Archived Successfully",
       },
       { status: 200 },
@@ -268,9 +272,9 @@ export async function POST(
   }
 }
 
-// delete project by id
+// ################# delete project by id ########################
 export async function DELETE(
-  request: Request,
+  _request: Request,
   {
     params,
   }: { params: Promise<{ organizationId: string; projectId: string }> },
@@ -296,12 +300,12 @@ export async function DELETE(
       permissions.project.delete,
     );
 
-    const deletedProject = await deleteProject(projectId);
+    const deletedProject = await deleteProject(organizationId, projectId);
 
     return NextResponse.json(
       {
         success: true,
-        project: deletedProject,
+        data: deletedProject,
         message: "Project Deleted Successfully",
       },
       { status: 200 },

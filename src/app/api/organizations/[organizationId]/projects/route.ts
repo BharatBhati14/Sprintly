@@ -94,7 +94,7 @@ export async function GET(
   }
 }
 
-// ############### POST ################
+// ######################### POST ###########################
 
 export async function POST(
   request: Request,
@@ -115,7 +115,7 @@ export async function POST(
 
     const { organizationId } = await params;
 
-    const currentMember = await requireOrganizationPermission(
+    await requireOrganizationPermission(
       user.id,
       organizationId,
       permissions.project.create,
@@ -140,7 +140,7 @@ export async function POST(
     return NextResponse.json(
       {
         success: true,
-        project,
+        data: project,
         message: "Project Created Successfully",
       },
       { status: 201 },
