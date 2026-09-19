@@ -5,3 +5,4 @@ export { OrganizationList } from "./OrganizationList";
 export { OrganizationMembers } from "./OrganizationMembers";
 export { OrganizationSettings } from "./OrganizationSettings";
 export { OrganizationSettingsForm } from "./OrganizationSettingsForm";
+export { DeleteOrganizationDialog } from "./DeleteOrganizationDialog";

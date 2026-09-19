@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Settings } from "lucide-react";
+import { ArrowLeft, Settings, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
@@ -8,6 +8,7 @@ import { AppShell, PageHeader } from "@/components/layout";
 import { Button, Card, Dialog, Skeleton } from "@/components/ui";
 import { useAuth } from "@/features/auth/auth.hooks";
 import {
+  DeleteOrganizationDialog,
   OrganizationMembers,
   OrganizationSettingsForm,
 } from "@/features/organizations/components";
@@ -22,6 +23,7 @@ import type {
 import {
   updateMemberRole,
   removeMember,
+  deleteOrganization,
 } from "@/features/organizations/organization.api";
 
 export default function OrganizationPage() {
@@ -44,6 +46,7 @@ export default function OrganizationPage() {
     useState<OrganizationMember | null>(null);
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const currentMember = members.find((member) => member.userId === user?.id);
 
@@ -201,8 +204,41 @@ export default function OrganizationPage() {
                 setSettingsOpen(false);
               }}
             />
+
+            <div className="mt-6 border-t border-zinc-200 pt-6">
+              <div>
+                <h3 className="text-sm font-semibold text-red-700">
+                  Danger zone
+                </h3>
+
+                <p className="mt-1 text-sm text-zinc-500">
+                  Permanently delete this organization and its associated data.
+                </p>
+              </div>
+
+              <Button
+                type="button"
+                variant="danger"
+                className="mt-4"
+                onClick={() => setDeleteDialogOpen(true)}
+              >
+                <Trash2 className="h-4 w-4" />
+                Delete organization
+              </Button>
+            </div>
           </Dialog>
         )}
+
+        <DeleteOrganizationDialog
+          open={deleteDialogOpen}
+          organizationName={organization.name}
+          onClose={() => setDeleteDialogOpen(false)}
+          onDelete={async () => {
+            await deleteOrganization(organizationId);
+
+            window.location.href = "/organizations";
+          }}
+        />
       </div>
     </AppShell>
   );

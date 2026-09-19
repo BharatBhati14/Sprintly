@@ -104,3 +104,11 @@ export async function createOrganizationInvitation(
 
   return response.invitation;
 }
+
+export async function deleteOrganization(
+  organizationId: string,
+): Promise<Organization> {
+  return apiClient<Organization>(`/api/organizations/${organizationId}`, {
+    method: "DELETE",
+  });
+}
