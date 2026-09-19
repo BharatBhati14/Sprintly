@@ -34,7 +34,7 @@ export async function GET(
     return NextResponse.json(
       {
         success: true,
-        members,
+        data: members,
         message: "Members Fetched Successfully",
       },
       { status: 200 },
@@ -131,7 +131,7 @@ export async function POST(
     return NextResponse.json(
       {
         success: true,
-        member,
+        data: member,
         message: "Member Added Successfully",
       },
       { status: 201 },

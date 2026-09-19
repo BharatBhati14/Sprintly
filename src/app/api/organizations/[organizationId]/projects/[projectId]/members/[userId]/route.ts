@@ -42,7 +42,7 @@ export async function DELETE(
     return NextResponse.json(
       {
         success: true,
-        member: deletedProjectMember,
+        data: deletedProjectMember,
         message: "Member Removed Successfully",
       },
       { status: 200 },
