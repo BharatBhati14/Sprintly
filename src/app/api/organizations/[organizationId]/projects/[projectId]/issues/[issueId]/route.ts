@@ -47,7 +47,7 @@ export async function GET(
     return NextResponse.json(
       {
         success: true,
-        issue,
+        data: issue,
       },
       { status: 200 },
     );
@@ -75,7 +75,7 @@ export async function GET(
     return NextResponse.json(
       {
         success: false,
-        error: "Failed To Fetch Issue",
+        error: { message: "Failed To Fetch Issue" },
       },
       { status: 500 },
     );
@@ -120,7 +120,7 @@ export async function PATCH(
       return NextResponse.json(
         {
           success: false,
-          error: "Input Validation Failed",
+          error: { message: "Input Validation Failed" },
           details: result.error.flatten().fieldErrors,
         },
         { status: 400 },
@@ -132,7 +132,7 @@ export async function PATCH(
     return NextResponse.json(
       {
         success: true,
-        issue,
+        data: issue,
         message: "Issue Updated Successfully",
       },
       { status: 200 },
@@ -163,7 +163,7 @@ export async function PATCH(
         return NextResponse.json(
           {
             success: false,
-            error: "No fields to update",
+            error: { message: "No fields to update" },
           },
           { status: 400 },
         );
@@ -174,7 +174,7 @@ export async function PATCH(
       return NextResponse.json(
         {
           success: false,
-          error: "Invalid JSON Body",
+          error: { message: "Invalid JSON Body" },
         },
         { status: 400 },
       );
@@ -183,7 +183,7 @@ export async function PATCH(
     return NextResponse.json(
       {
         success: false,
-        error: "Failed To Update Issue",
+        error: { message: "Failed To Update Issue" },
       },
       { status: 500 },
     );
@@ -225,7 +225,7 @@ export async function DELETE(
     return NextResponse.json(
       {
         success: true,
-        issue,
+        data: issue,
         message: "Issue Deleted Successfully",
       },
       { status: 200 },
@@ -254,7 +254,7 @@ export async function DELETE(
     return NextResponse.json(
       {
         success: false,
-        error: "Failed To Delete Issue",
+        error: { message: "Failed To Delete Issue" },
       },
       { status: 500 },
     );

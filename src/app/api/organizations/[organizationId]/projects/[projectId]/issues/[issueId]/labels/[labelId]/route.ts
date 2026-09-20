@@ -51,7 +51,7 @@ export async function DELETE(
     return NextResponse.json(
       {
         success: true,
-        issueLabel,
+        data: issueLabel,
         message: "issue-label deleted Successfully",
       },
       { status: 200 },
@@ -80,7 +80,7 @@ export async function DELETE(
     return NextResponse.json(
       {
         success: false,
-        error: "Failed To delete issue-label",
+        error: { message: "Failed To delete issue-label" },
       },
       { status: 500 },
     );

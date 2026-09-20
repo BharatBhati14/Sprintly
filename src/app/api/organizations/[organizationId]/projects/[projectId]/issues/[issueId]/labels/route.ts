@@ -47,7 +47,7 @@ export async function GET(
     return NextResponse.json(
       {
         success: true,
-        issueLabels,
+        data: issueLabels,
       },
       { status: 200 },
     );
@@ -75,7 +75,7 @@ export async function GET(
     return NextResponse.json(
       {
         success: false,
-        error: "Failed To Fetch Issue-labels",
+        error: { message: "Failed To Fetch Issue-labels" },
       },
       { status: 500 },
     );
@@ -122,7 +122,7 @@ export async function POST(
       return NextResponse.json(
         {
           success: false,
-          error: "LabelId is required",
+          error: { message: "LabelId is required" },
         },
         { status: 400 },
       );
@@ -138,7 +138,7 @@ export async function POST(
     return NextResponse.json(
       {
         success: true,
-        issueLabel,
+        data: issueLabel,
         message: "issue-label Created Successfully",
       },
       { status: 201 },
@@ -169,7 +169,7 @@ export async function POST(
         return NextResponse.json(
           {
             success: false,
-            error: "Issue-label already exists",
+            error: { message: "Issue-label already exists" },
           },
           { status: 400 },
         );
@@ -180,7 +180,7 @@ export async function POST(
       return NextResponse.json(
         {
           success: false,
-          error: "Invalid JSON Body",
+          error: { message: "Invalid JSON Body" },
         },
         { status: 400 },
       );
@@ -189,7 +189,7 @@ export async function POST(
     return NextResponse.json(
       {
         success: false,
-        error: "Failed To create issue-label",
+        error: { message: "Failed To create issue-label" },
       },
       { status: 500 },
     );
@@ -239,7 +239,7 @@ export async function PATCH(
       return NextResponse.json(
         {
           success: false,
-          error: "Invalid JSON Body",
+          error: { message: "Invalid JSON Body" },
         },
         { status: 400 },
       );
@@ -251,7 +251,7 @@ export async function PATCH(
       return NextResponse.json(
         {
           success: false,
-          error: "Input Validation Failed",
+          error: { message: "Input Validation Failed" },
           details: result.error.flatten().fieldErrors,
         },
         { status: 400 },
@@ -268,7 +268,7 @@ export async function PATCH(
     return NextResponse.json(
       {
         success: true,
-        labels,
+        data: labels,
         message: "Issue Labels Replaced Successfully",
       },
       { status: 200 },
@@ -297,7 +297,7 @@ export async function PATCH(
     return NextResponse.json(
       {
         success: false,
-        error: "Failed To Replace Issue Labels",
+        error: { message: "Failed To Replace Issue Labels" },
       },
       { status: 500 },
     );

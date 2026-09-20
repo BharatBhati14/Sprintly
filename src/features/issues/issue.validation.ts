@@ -21,62 +21,58 @@ export const createIssueSchema = z.object({
     .min(1, "Title is required")
     .max(150, "Title is too long"),
 
-  description: z
-    .string()
-    .trim()
-    .max(500, "Description is too long")
-    .nullable()
-    .optional(),
+  description: z.string().trim().max(500, "Description is too long").optional(),
 
-  status: issueStatusSchema.optional(),
+  status: issueStatusSchema.default("TODO"),
 
-  priority: issuePrioritySchema.optional(),
+  priority: issuePrioritySchema.default("MEDIUM"),
 
   assigneeId: z.uuid("Invalid assignee ID").nullable().optional(),
 
   dueDate: z
     .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Due date must be in YYYY-MM-DD format")
+    // .regex(/^\d{4}-\d{2}-\d{2}$/, "Due date must be in YYYY-MM-DD format")
     .nullable()
     .optional(),
 });
 
-export const updateIssueSchema = z
-  .object({
-    title: z
-      .string()
-      .trim()
-      .min(1, "Title cannot be empty")
-      .max(150, "Title is too long")
-      .optional(),
+export const updateIssueSchema = createIssueSchema.partial();
+// z
+//   .object({
+//     title: z
+//       .string()
+//       .trim()
+//       .min(1, "Title cannot be empty")
+//       .max(150, "Title is too long")
+//       .optional(),
 
-    description: z
-      .string()
-      .trim()
-      .max(500, "Description is too long")
-      .nullable()
-      .optional(),
+//     description: z
+//       .string()
+//       .trim()
+//       .max(500, "Description is too long")
+//       .nullable()
+//       .optional(),
 
-    status: issueStatusSchema.optional(),
+//     status: issueStatusSchema.optional(),
 
-    priority: issuePrioritySchema.optional(),
+//     priority: issuePrioritySchema.optional(),
 
-    assigneeId: z.uuid("Invalid assignee ID").nullable().optional(),
+//     assigneeId: z.uuid("Invalid assignee ID").nullable().optional(),
 
-    dueDate: z
-      .string()
-      .regex(/^\d{4}-\d{2}-\d{2}$/, "Due date must be in YYYY-MM-DD format")
-      .nullable()
-      .optional(),
-  })
-  .refine((data) => Object.keys(data).length > 0, {
-    message: "At least one field must be provided",
-  });
+//     dueDate: z
+//       .string()
+//       // .regex(/^\d{4}-\d{2}-\d{2}$/, "Due date must be in YYYY-MM-DD format")
+//       .nullable()
+//       .optional(),
+//   })
+//   .refine((data) => Object.keys(data).length > 0, {
+//     message: "At least one field must be provided",
+//   });
 
 /**
  * Used specifically for status transitions.
  */
-export const changeIssueStatusSchema = z.object({
+export const IssueStatusSchema = z.object({
   status: issueStatusSchema,
 });
 
@@ -113,7 +109,7 @@ export type CreateIssueInput = z.infer<typeof createIssueSchema>;
 
 export type UpdateIssueInput = z.infer<typeof updateIssueSchema>;
 
-export type ChangeIssueStatusInput = z.infer<typeof changeIssueStatusSchema>;
+export type ChangeIssueStatusInput = z.infer<typeof IssueStatusSchema>;
 
 export type IssueListQuery = z.infer<typeof issueListQuerySchema>;
 

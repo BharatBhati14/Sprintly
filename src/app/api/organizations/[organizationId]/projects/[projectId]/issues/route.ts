@@ -51,7 +51,10 @@ export async function GET(
       return NextResponse.json(
         {
           success: false,
-          error: "Invalid Query Parameters",
+          error: {
+            code: "INVALID_QUERY",
+            message: "Invalid Query Parameters",
+          },
           details: result.error.flatten().fieldErrors,
         },
         { status: 400 },
@@ -63,7 +66,7 @@ export async function GET(
     return NextResponse.json(
       {
         success: true,
-        issues,
+        data: issues,
         message: "Issues Fetched Successfully",
       },
       { status: 200 },
@@ -92,12 +95,17 @@ export async function GET(
     return NextResponse.json(
       {
         success: false,
-        error: "Failed To Fetch Issues",
+        error: {
+          code: "FETCH_FAILED",
+          message: "Failed To Fetch Issues",
+        },
       },
       { status: 500 },
     );
   }
 }
+
+// ############################## POST ##############################
 
 export async function POST(
   request: Request,
@@ -134,7 +142,10 @@ export async function POST(
       return NextResponse.json(
         {
           success: false,
-          error: "Input Validation Failed",
+          error: {
+            code: "INVALID_INPUT",
+            message: "Input Validation Failed",
+          },
         },
         { status: 400 },
       );
@@ -150,7 +161,7 @@ export async function POST(
     return NextResponse.json(
       {
         success: true,
-        issue,
+        data: issue,
         issueIdentifier: identifier,
         message: "Issue Created Successfully",
       },
@@ -179,7 +190,7 @@ export async function POST(
 
     if (error instanceof SyntaxError) {
       return NextResponse.json(
-        { success: false, error: "Invalid JSON Body" },
+        { success: false, error: { message: "Invalid JSON Body" } },
         { status: 400 },
       );
     }
@@ -187,7 +198,7 @@ export async function POST(
     return NextResponse.json(
       {
         success: false,
-        error: "Failed To Create Issue",
+        error: { message: "Failed To Create Issue" },
       },
       { status: 500 },
     );
