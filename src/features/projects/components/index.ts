@@ -6,3 +6,5 @@ export * from "./ProjectOverview";
 export * from "./ProjectSettingsForm";
 export * from "./ProjectSettingsDialog";
 export * from "./DeleteProjectDialog";
+export * from "./ProjectNavigation";
+export * from "./ProjectShell";
