@@ -1,7 +1,5 @@
 import Link from "next/link";
-
 import { Card } from "@/components/ui";
-
 import { IssuePriorityBadge } from "./IssuePriorityBadge";
 import { IssueStatusBadge } from "./IssueStatusBadge";
 
@@ -31,13 +29,21 @@ export function IssueCard({
             <h3 className="mt-1 truncate font-medium text-zinc-950">
               {issue.title}
             </h3>
+
+            <p className="text-sm text-zinc-500">{issue?.desc}</p>
           </div>
 
-          <IssuePriorityBadge priority={issue.priority} />
+          <div>
+            <span className="text-gray-600 text-xs">Priority&nbsp;</span>
+            <IssuePriorityBadge priority={issue.priority} />
+          </div>
         </div>
 
-        <div className="mt-4 flex items-center justify-between gap-3">
-          <IssueStatusBadge status={issue.status} />
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <div>
+            <span className="text-gray-600 text-xs">Status&nbsp;</span>
+            <IssueStatusBadge status={issue.status} />
+          </div>
 
           {issue.dueDate && (
             <span className="text-xs text-zinc-500">

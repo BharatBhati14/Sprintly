@@ -66,24 +66,24 @@ async function getLabelsForIssues(issueIds: string[]) {
 export async function getIssues(
   organizationId: string,
   projectId: string,
-  filters: IssueListQuery,
+  filters?: IssueListQuery,
 ) {
   const conditions = [eq(issues.project_id, projectId)];
 
-  if (filters.status) {
+  if (filters?.status) {
     conditions.push(eq(issues.status, filters.status));
   }
 
-  if (filters.priority) {
+  if (filters?.priority) {
     conditions.push(eq(issues.priority, filters.priority));
   }
 
-  if (filters.assigneeId) {
+  if (filters?.assigneeId) {
     conditions.push(eq(issues.assignee_id, filters.assigneeId));
   }
 
   // If filtering by label, make sure the label belongs to the same organization as the project
-  if (filters.labelId) {
+  if (filters?.labelId) {
     const [label] = await db
       .select({ id: labels.id })
       .from(labels)

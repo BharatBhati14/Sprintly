@@ -23,6 +23,8 @@ import { useProjectMembers } from "@/features/project-members/useProjectMembers"
 import { useProject } from "@/features/projects/useProject";
 import type { UpdateProjectInput } from "@/features/projects/project.types";
 import { useOrganization } from "@/features/organizations/useOrganization";
+import { useIssues } from "@/features/issues/issue.hooks";
+import { IssueEmptyState, IssueList } from "@/features/issues/components";
 
 export default function ProjectPage() {
   const params = useParams<{
@@ -53,6 +55,13 @@ export default function ProjectPage() {
     addMember,
     removeMember,
   } = useProjectMembers(organizationId, projectId);
+
+  const {
+    issues,
+    loading: issuesLoading,
+    error: issuesError,
+    create,
+  } = useIssues(organizationId, projectId);
 
   const { members: organizationMembers } = useOrganization(organizationId);
 
@@ -161,11 +170,41 @@ export default function ProjectPage() {
 
           <div className="mt-8 grid gap-4 lg:grid-cols-2">
             <Card className="px-6 py-6">
-              <h2 className="text-sm font-semibold text-zinc-950">Issues</h2>
+              <h2 className="text-sm font-semibold text-zinc-950">Issues (Latest 5)</h2>
 
               <p className="mt-1 text-sm text-zinc-500">
                 Issue management will be available here.
               </p>
+
+              {issuesLoading && (
+                <div className="space-y-3">
+                  {[1, 2, 3].map((item) => (
+                    <div
+                      key={item}
+                      className="h-24 animate-pulse rounded-xl border border-zinc-200 bg-zinc-50"
+                    />
+                  ))}
+                </div>
+              )}
+
+              {!issuesLoading && issuesError && (
+                <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                  {issuesError}
+                </div>
+              )}
+
+              {!issuesLoading && !issuesError && issues.length === 0 && (
+                <IssueEmptyState />
+              )}
+
+              {!issuesLoading && !issuesError && issues.length > 0 && (
+                <IssueList
+                  issues={issues}
+                  organizationId={organizationId}
+                  projectId={projectId}
+                  isProjectDPage={true}
+                />
+              )}
             </Card>
 
             <ProjectMembers

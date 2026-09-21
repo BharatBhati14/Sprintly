@@ -4,7 +4,7 @@ import { useState } from "react";
 import { X } from "lucide-react";
 
 import { Button, Input, Textarea } from "@/components/ui";
-import { createIssueSchema } from "../issue.validation";
+import { createIssueSchema, IssueStatus } from "../issue.validation";
 import type { CreateIssueInput, IssuePriority } from "../issue.types";
 
 interface CreateIssueDialogProps {
@@ -14,6 +14,13 @@ interface CreateIssueDialogProps {
 }
 
 const priorities: IssuePriority[] = ["LOW", "MEDIUM", "HIGH", "URGENT"];
+const statuses: IssueStatus[] = [
+  "BACKLOG",
+  "TODO",
+  "IN_PROGRESS",
+  "IN_REVIEW",
+  "DONE",
+];
 
 export function CreateIssueDialog({
   open,
@@ -23,6 +30,7 @@ export function CreateIssueDialog({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<IssuePriority>("MEDIUM");
+  const [status, setStatus] = useState<IssueStatus>("TODO");
 
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -35,6 +43,7 @@ export function CreateIssueDialog({
     setTitle("");
     setDescription("");
     setPriority("MEDIUM");
+    setStatus("TODO");
     setError(null);
   };
 
@@ -56,6 +65,7 @@ export function CreateIssueDialog({
       title,
       description: description || undefined,
       priority,
+      status,
     });
 
     if (!result.success) {
@@ -70,6 +80,7 @@ export function CreateIssueDialog({
         title: result.data.title,
         description: result.data.description,
         priority: result.data.priority,
+        status: result.data.status,
       });
 
       reset();
@@ -138,6 +149,22 @@ export function CreateIssueDialog({
               className="h-10 w-full rounded-md border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none transition focus:border-zinc-400 focus:ring-2 focus:ring-zinc-100 disabled:cursor-not-allowed disabled:bg-zinc-50"
             >
               {priorities.map((item) => (
+                <option key={item} value={item}>
+                  {item.charAt(0) + item.slice(1).toLowerCase()}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-zinc-800">Status</label>
+            <select
+              value={status}
+              onChange={(event) => setStatus(event.target.value as IssueStatus)}
+              disabled={submitting}
+              className="h-10 w-full rounded-md border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none transition focus:border-zinc-400 focus:ring-2 focus:ring-zinc-100 disabled:cursor-not-allowed disabled:bg-zinc-50"
+            >
+              {statuses.map((item) => (
                 <option key={item} value={item}>
                   {item.charAt(0) + item.slice(1).toLowerCase()}
                 </option>

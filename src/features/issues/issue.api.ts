@@ -9,44 +9,35 @@ import type {
   UpdateIssueInput,
 } from "./issue.types";
 
-interface IssueListResponse {
-  issues: Issue[];
-  pagination: IssuePagination;
+export interface IssueListResponse {
+  data: Issue[];
 }
 
-export async function getIssues(
-  organizationId: string,
-  projectId: string,
-  filters?: IssueFilters,
-) {
+export async function getIssues(organizationId: string, projectId: string) {
   const params = new URLSearchParams();
 
-  if (filters?.status) {
-    params.set("status", filters.status);
-  }
+  //   if (filters?.status) {
+  //     params.set("status", filters.status);
+  //   }
 
-  if (filters?.priority) {
-    params.set("priority", filters.priority);
-  }
+  //   if (filters?.priority) {
+  //     params.set("priority", filters.priority);
+  //   }
 
-  if (filters?.assigneeId) {
-    params.set("assigneeId", filters.assigneeId);
-  }
+  //   if (filters?.assigneeId) {
+  //     params.set("assigneeId", filters.assigneeId);
+  //   }
 
-  if (filters?.page) {
-    params.set("page", String(filters.page));
-  }
+  //   if (filters?.page) {
+  //     params.set("page", String(filters.page));
+  //   }
 
-  if (filters?.limit) {
-    params.set("limit", String(filters.limit));
-  }
+  //   if (filters?.limit) {
+  //     params.set("limit", String(filters.limit));
+  //   }
 
-  const query = params.toString();
-
-  return apiClient<IssueListResponse>(
-    `/api/organizations/${organizationId}/projects/${projectId}/issues${
-      query ? `?${query}` : ""
-    }`,
+  return apiClient<Issue[] >(
+    `/api/organizations/${organizationId}/projects/${projectId}/issues`,
   );
 }
 

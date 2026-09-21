@@ -13,7 +13,7 @@ export interface Issue {
   number: number;
 
   title: string;
-  description: string | null;
+  desc: string | null;
 
   status: IssueStatus;
   priority: IssuePriority;
@@ -31,6 +31,7 @@ export interface CreateIssueInput {
   title: string;
   description?: string;
   priority?: IssuePriority;
+  status?: IssueStatus;
   assigneeId?: string | null;
   dueDate?: string | null;
 }
@@ -39,6 +40,7 @@ export interface UpdateIssueInput {
   title?: string;
   description?: string;
   priority?: IssuePriority;
+  status?: IssueStatus;
   assigneeId?: string | null;
   dueDate?: string | null;
 }
