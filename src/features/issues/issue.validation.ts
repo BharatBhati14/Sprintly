@@ -90,6 +90,16 @@ export const issueListQuerySchema = z
     assigneeId: z.uuid("Invalid assignee ID").optional(),
 
     labelId: z.uuid("Invalid label ID").optional(),
+
+    page: z.coerce.number().int().min(1).default(1),
+
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+
+    sortBy: z
+      .enum(["createdAt", "updatedAt", "dueDate", "priority"])
+      .default("createdAt"),
+
+    sortOrder: z.enum(["asc", "desc"]).default("desc"),
   })
   .strict();
 

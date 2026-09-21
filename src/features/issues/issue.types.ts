@@ -7,6 +7,10 @@ export type IssueStatus =
 
 export type IssuePriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
 
+export type IssueSortField = "createdAt" | "updatedAt" | "dueDate" | "priority";
+
+export type SortOrder = "asc" | "desc";
+
 export interface Issue {
   id: string;
   projectId: string;
@@ -53,8 +57,11 @@ export interface IssueFilters {
   status?: IssueStatus;
   priority?: IssuePriority;
   assigneeId?: string;
+  labelId?: string;
   page?: number;
   limit?: number;
+  sortBy?: IssueSortField;
+  sortOrder?: SortOrder;
 }
 
 export interface IssuePagination {

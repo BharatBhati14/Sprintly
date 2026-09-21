@@ -4,6 +4,7 @@ interface ApiSuccessResponse<T> {
   success: true;
   data?: T;
   user?: T;
+  pagination?: unknown;
 }
 
 interface ApiFailureResponse {
@@ -16,17 +17,44 @@ interface ApiFailureResponse {
 
 type ApiResponse<T> = ApiSuccessResponse<T> | ApiFailureResponse;
 
+interface ApiClientOptions extends RequestInit {
+  includeMeta?: boolean;
+}
+
+export interface ApiMeta {
+  pagination?: unknown;
+}
+
+export function apiClient<T>(
+  url: string,
+  options?: Omit<ApiClientOptions, "includeMeta"> & {
+    includeMeta?: false;
+  },
+): Promise<T>;
+
+export function apiClient<T>(
+  url: string,
+  options: ApiClientOptions & {
+    includeMeta: true;
+  },
+): Promise<{
+  data: T;
+  meta: ApiMeta;
+}>;
+
 export async function apiClient<T>(
   url: string,
-  options: RequestInit = {},
-): Promise<T> {
+  options: ApiClientOptions = {},
+): Promise<T | { data: T; meta: ApiMeta }> {
+  const { includeMeta, ...fetchOptions } = options;
+
   const response = await fetch(url, {
-    ...options,
+    ...fetchOptions,
     credentials: "include",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
-      ...options.headers,
+      ...fetchOptions.headers,
     },
   });
 
@@ -55,6 +83,15 @@ export async function apiClient<T>(
   const successBody = body as ApiSuccessResponse<T>;
 
   if ("data" in successBody && successBody.data !== undefined) {
+    if (includeMeta) {
+      return {
+        data: successBody.data,
+        meta: {
+          pagination: successBody.pagination,
+        },
+      };
+    }
+
     return successBody.data;
   }
 

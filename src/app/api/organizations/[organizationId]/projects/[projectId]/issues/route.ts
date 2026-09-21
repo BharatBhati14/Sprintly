@@ -43,6 +43,10 @@ export async function GET(
       priority: searchParams.get("priority") ?? undefined,
       assigneeId: searchParams.get("assigneeId") ?? undefined,
       labelId: searchParams.get("labelId") ?? undefined,
+      page: searchParams.get("page") ?? undefined,
+      limit: searchParams.get("limit") ?? undefined,
+      sortBy: searchParams.get("sortBy") ?? undefined,
+      sortOrder: searchParams.get("sortOrder") ?? undefined,
     };
 
     const result = issueListQuerySchema.safeParse(query);
@@ -66,7 +70,8 @@ export async function GET(
     return NextResponse.json(
       {
         success: true,
-        data: issues,
+        data: issues.data,
+        pagination: issues.pagination,
         message: "Issues Fetched Successfully",
       },
       { status: 200 },

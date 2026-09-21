@@ -13,32 +13,62 @@ export interface IssueListResponse {
   data: Issue[];
 }
 
-export async function getIssues(organizationId: string, projectId: string) {
-  const params = new URLSearchParams();
+interface IssueListApiResponse {
+  data: Issue[];
+  meta: {
+    pagination?: IssuePagination;
+  };
+}
 
-  //   if (filters?.status) {
-  //     params.set("status", filters.status);
-  //   }
+export async function getIssues(
+  organizationId: string,
+  projectId: string,
+  filters?: IssueFilters,
+) {
+  const searchParams = new URLSearchParams();
 
-  //   if (filters?.priority) {
-  //     params.set("priority", filters.priority);
-  //   }
+  if (filters?.status) {
+    searchParams.set("status", filters.status);
+  }
 
-  //   if (filters?.assigneeId) {
-  //     params.set("assigneeId", filters.assigneeId);
-  //   }
+  if (filters?.priority) {
+    searchParams.set("priority", filters.priority);
+  }
 
-  //   if (filters?.page) {
-  //     params.set("page", String(filters.page));
-  //   }
+  if (filters?.assigneeId) {
+    searchParams.set("assigneeId", filters.assigneeId);
+  }
 
-  //   if (filters?.limit) {
-  //     params.set("limit", String(filters.limit));
-  //   }
+  if (filters?.labelId) {
+    searchParams.set("labelId", filters.labelId);
+  }
 
-  return apiClient<Issue[] >(
-    `/api/organizations/${organizationId}/projects/${projectId}/issues`,
-  );
+  if (filters?.page) {
+    searchParams.set("page", String(filters.page));
+  }
+
+  if (filters?.limit) {
+    searchParams.set("limit", String(filters.limit));
+  }
+
+  if (filters?.sortBy) {
+    searchParams.set("sortBy", filters.sortBy);
+  }
+
+  if (filters?.sortOrder) {
+    searchParams.set("sortOrder", filters.sortOrder);
+  }
+
+  const query = searchParams.toString();
+
+  return apiClient<Issue[]>(
+    `/api/organizations/${organizationId}/projects/${projectId}/issues${
+      query ? `?${query}` : ""
+    }`,
+    {
+      includeMeta: true,
+    },
+  ) as Promise<IssueListApiResponse>;
 }
 
 export async function getIssue(

@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
   issueLabels,
@@ -82,7 +82,7 @@ export async function getIssues(
     conditions.push(eq(issues.assignee_id, filters.assigneeId));
   }
 
-  // If filtering by label, make sure the label belongs to the same organization as the project
+  // If filtering by label, make sure the label belongs to the same organization as the project.
   if (filters?.labelId) {
     const [label] = await db
       .select({ id: labels.id })
@@ -93,7 +93,15 @@ export async function getIssues(
       .limit(1);
 
     if (!label) {
-      return [];
+      return {
+        data: [],
+        pagination: {
+          page: filters?.page ?? 1,
+          limit: filters?.limit ?? 20,
+          total: 0,
+          totalPages: 0,
+        },
+      };
     }
 
     conditions.push(
@@ -107,19 +115,81 @@ export async function getIssues(
     );
   }
 
+  const page = filters?.page ?? 1;
+  const limit = filters?.limit ?? 20;
+  const offset = (page - 1) * limit;
+
+  // Count total matching issues.
+  const [countResult] = await db
+    .select({
+      count: sql<number>`count(*)`,
+    })
+    .from(issues)
+    .where(and(...conditions));
+
+  const total = Number(countResult?.count ?? 0);
+  const totalPages = Math.ceil(total / limit);
+
+  // Determine sorting.
+  let orderBy;
+
+  switch (filters?.sortBy) {
+    case "updatedAt":
+      orderBy =
+        filters.sortOrder === "asc"
+          ? asc(issues.updated_at)
+          : desc(issues.updated_at);
+      break;
+
+    case "dueDate":
+      orderBy =
+        filters.sortOrder === "asc"
+          ? asc(issues.due_date)
+          : desc(issues.due_date);
+      break;
+
+    case "priority":
+      orderBy =
+        filters.sortOrder === "asc"
+          ? asc(issues.priority)
+          : desc(issues.priority);
+      break;
+
+    case "createdAt":
+    default:
+      orderBy =
+        filters?.sortOrder === "asc"
+          ? asc(issues.created_at)
+          : desc(issues.created_at);
+      break;
+  }
+
   const issueRows = await db
     .select()
     .from(issues)
     .where(and(...conditions))
-    .orderBy(desc(issues.number));
+    .orderBy(orderBy)
+    .limit(limit)
+    .offset(offset);
 
   const labelsByIssue = await getLabelsForIssues(
     issueRows.map((issue) => issue.id),
   );
-  return issueRows.map((issue) => ({
+
+  const data = issueRows.map((issue) => ({
     ...issue,
     labels: labelsByIssue.get(issue.id) ?? [],
   }));
+
+  return {
+    data,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages,
+    },
+  };
 }
 
 // ######## create issue #############

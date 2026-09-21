@@ -25,7 +25,8 @@ export function useIssues(organizationId: string, projectId: string) {
 
       const response = await getIssues(organizationId, projectId);
 
-      setIssues(response);
+      setIssues(response.data);
+      setPagination(response.meta.pagination ?? null);
     } catch (error) {
       setError(
         error instanceof Error ? error.message : "Failed to load issues",
