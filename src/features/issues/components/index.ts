@@ -4,3 +4,5 @@ export { IssueList } from "./IssueList";
 export { IssuePriorityBadge } from "./IssuePriorityBadge";
 export { IssueStatusBadge } from "./IssueStatusBadge";
 export { CreateIssueDialog } from "./CreateIssueDialog";
+export { IssueDetail } from "./IssueDetail";
+export { EditIssueDialog } from "./EditIssueDialog";

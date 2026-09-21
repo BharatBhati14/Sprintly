@@ -11,6 +11,12 @@ export type IssueSortField = "createdAt" | "updatedAt" | "dueDate" | "priority";
 
 export type SortOrder = "asc" | "desc";
 
+export interface IssueLabel {
+  id: string;
+  name: string;
+  color: string | null;
+}
+
 export interface Issue {
   id: string;
   projectId: string;
@@ -29,6 +35,8 @@ export interface Issue {
 
   createdAt: string;
   updatedAt: string;
+
+  labels?: IssueLabel[];
 }
 
 export interface CreateIssueInput {
@@ -42,7 +50,7 @@ export interface CreateIssueInput {
 
 export interface UpdateIssueInput {
   title?: string;
-  description?: string;
+  desc?: string;
   priority?: IssuePriority;
   status?: IssueStatus;
   assigneeId?: string | null;
