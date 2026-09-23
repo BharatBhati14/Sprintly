@@ -29,7 +29,10 @@ export interface Issue {
   priority: IssuePriority;
 
   assigneeId: string | null;
+  assignee: IssueUser | null;
+
   reporterId: string;
+  reporter: IssueUser | null;
 
   dueDate: string | null;
 
@@ -77,4 +80,10 @@ export interface IssuePagination {
   limit: number;
   total: number;
   totalPages: number;
+}
+
+export interface IssueUser {
+  id: string;
+  name: string;
+  email: string;
 }

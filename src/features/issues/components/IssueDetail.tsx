@@ -75,7 +75,10 @@ export function IssueDetail({ issue, projectKey }: IssueDetailProps) {
 
             <div className="mt-1 flex items-center gap-2 text-sm text-zinc-700">
               <User className="h-4 w-4 text-zinc-400" />
-              {issue.assigneeId || "Unassigned"}
+              <p>{issue.assignee?.name || "Unassigned"}</p>
+              {issue.assignee && (
+                <p className="text-xs text-zinc-400">{issue.assignee.email}</p>
+              )}
             </div>
           </div>
 
@@ -84,7 +87,12 @@ export function IssueDetail({ issue, projectKey }: IssueDetailProps) {
               Reporter
             </p>
 
-            <div className="mt-1 text-sm text-zinc-700">{issue.reporterId}</div>
+            <div className="mt-1 text-sm text-zinc-700">
+              <p>{issue.reporter?.name || "Unknown"}</p>
+              {issue.reporter && (
+                <p className="text-xs text-zinc-400">{issue.reporter.email}</p>
+              )}
+            </div>
           </div>
 
           <div>
@@ -105,7 +113,8 @@ export function IssueDetail({ issue, projectKey }: IssueDetailProps) {
               Created
             </p>
 
-            <p className="mt-1 text-sm text-zinc-700">
+            <p className="mt-1 text-sm text-zinc-700 flex items-center gap-2">
+              <CalendarDays className="h-4 w-4 text-zinc-400" />
               {new Date(issue.createdAt).toLocaleDateString()}
             </p>
           </div>

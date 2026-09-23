@@ -6,6 +6,7 @@ import {
   labels,
   projectMembers,
   projects,
+  users,
 } from "@/db/schemas";
 import type {
   CreateIssueInput,
@@ -14,6 +15,50 @@ import type {
   UpdateIssueInput,
 } from "./issue.validation";
 import { AuthorizationError } from "@/server/authorization/authorization-error";
+
+interface IssueUser {
+  id: string;
+  name: string;
+  email: string;
+}
+
+function mapIssue(
+  issue: any,
+  labels: Array<{
+    id: string;
+    name: string;
+    color: string | null;
+  }> = [],
+  userMap = new Map<string, IssueUser>(),
+) {
+  const assignee = issue.assignee_id
+    ? (userMap.get(issue.assignee_id) ?? null)
+    : null;
+
+  const reporter = userMap.get(issue.reporter_id) ?? null;
+
+  return {
+    id: issue.id,
+    projectId: issue.project_id,
+    number: issue.number,
+    title: issue.title,
+    desc: issue.desc,
+    status: issue.status,
+    priority: issue.priority,
+
+    assigneeId: issue.assignee_id,
+    assignee,
+
+    reporterId: issue.reporter_id,
+    reporter,
+
+    dueDate: issue.due_date,
+    createdAt: issue.created_at,
+    updatedAt: issue.updated_at,
+
+    labels,
+  };
+}
 
 async function getLabelsForIssues(issueIds: string[]) {
   if (issueIds.length === 0) {
@@ -60,6 +105,39 @@ async function getLabelsForIssues(issueIds: string[]) {
   }
 
   return labelsByIssue;
+}
+
+// ################# get users for issues ######################
+
+async function getUsersForIssues(
+  issueRows: Array<{
+    assignee_id: string | null;
+    reporter_id: string;
+  }>,
+) {
+  const userIds = Array.from(
+    new Set(
+      issueRows.flatMap((issue) => [
+        issue.reporter_id,
+        ...(issue.assignee_id ? [issue.assignee_id] : []),
+      ]),
+    ),
+  );
+
+  if (userIds.length === 0) {
+    return new Map<string, IssueUser>();
+  }
+
+  const rows = await db
+    .select({
+      id: users.id,
+      name: users.name,
+      email: users.email,
+    })
+    .from(users)
+    .where(inArray(users.id, userIds));
+
+  return new Map(rows.map((user) => [user.id, user]));
 }
 
 // get issues
@@ -172,14 +250,16 @@ export async function getIssues(
     .limit(limit)
     .offset(offset);
 
-  const labelsByIssue = await getLabelsForIssues(
-    issueRows.map((issue) => issue.id),
-  );
+  const issueIds = issueRows.map((issue) => issue.id);
 
-  const data = issueRows.map((issue) => ({
-    ...issue,
-    labels: labelsByIssue.get(issue.id) ?? [],
-  }));
+  const [labelsByIssue, userMap] = await Promise.all([
+    getLabelsForIssues(issueIds),
+    getUsersForIssues(issueRows),
+  ]);
+
+  const data = issueRows.map((issue) =>
+    mapIssue(issue, labelsByIssue.get(issue.id) ?? [], userMap),
+  );
 
   return {
     data,
@@ -267,14 +347,6 @@ export async function createIssue(
      * Because the project row is locked, issue creation
      * through this service is serialized for this project.
      */
-    // const [result] = await tx
-    //   .select({
-    //     maxNumber: sql<number>`coalesce(max(${issues.number}), 0)`,
-    //   })
-    //   .from(issues)
-    //   .where(eq(issues.project_id, projectId));
-
-    // const nextNumber = Number(result?.maxNumber ?? 0) + 1;
 
     const [lastIssue] = await tx
       .select({ number: issues.number })
@@ -305,14 +377,16 @@ export async function createIssue(
       throw new Error("Failed to create issue");
     }
 
+    const userMap = await getUsersForIssues([issue]);
+
     return {
-      issue,
+      issue: mapIssue(issue, [], userMap),
       identifier: `${lockedProject.key}-${issue.number}`,
     };
   });
 }
 
-// ########### get individual issue #############
+// ###################### get individual issue #####################
 
 export async function getIssue(projectId: string, issueId: string) {
   const [issue] = await db
@@ -325,15 +399,15 @@ export async function getIssue(projectId: string, issueId: string) {
     return null;
   }
 
-  const labelsByIssue = await getLabelsForIssues([issue.id]);
+  const [labelsByIssue, userMap] = await Promise.all([
+    getLabelsForIssues([issue.id]),
+    getUsersForIssues([issue]),
+  ]);
 
-  return {
-    ...issue,
-    labels: labelsByIssue.get(issue.id) ?? [],
-  };
+  return mapIssue(issue, labelsByIssue.get(issue.id) ?? [], userMap);
 }
 
-// ############# update issue ################
+// ################### update issue ###########################
 
 export async function updateIssue(
   projectId: string,
@@ -413,8 +487,9 @@ export async function updateIssue(
     if (!updatedIssue) {
       throw new Error("Failed to update issue");
     }
+    const userMap = await getUsersForIssues([updatedIssue]);
 
-    return updatedIssue;
+    return mapIssue(updatedIssue, [], userMap);
   });
 }
 
@@ -511,5 +586,7 @@ export async function deleteIssue(projectId: string, issueId: string) {
     throw new AuthorizationError("Issue Not Found", 404);
   }
 
-  return deletedIssue;
+  const userMap = await getUsersForIssues([deletedIssue]);
+
+  return mapIssue(deletedIssue, [], userMap);
 }
