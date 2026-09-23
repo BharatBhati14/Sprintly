@@ -11,12 +11,14 @@ import {
   EditIssueDialog,
   IssuePriorityBadge,
   IssueStatusBadge,
+  IssueLabels,
 } from "@/features/issues/components";
 import { useIssue } from "@/features/issues/useIssue";
 import { useProject } from "@/features/projects/useProject";
 import type { UpdateIssueInput } from "@/features/issues/issue.types";
 import { useState } from "react";
 import { useProjectMembers } from "@/features/project-members/useProjectMembers";
+import { useIssueLabels } from "@/features/labels/label.hooks";
 
 export default function IssueDetailPage() {
   const params = useParams<{
@@ -46,6 +48,16 @@ export default function IssueDetailPage() {
 
   const { members: projectMembers, isLoading: membersLoading } =
     useProjectMembers(organizationId, projectId);
+
+  const {
+    labels,
+    selectedLabelIds,
+    loading: labelsLoading,
+    savingLabelId,
+    error: labelsError,
+    addLabel,
+    removeLabel,
+  } = useIssueLabels(organizationId, projectId, issueId);
 
   const handleUpdate = async (input: UpdateIssueInput) => {
     await update(input);
@@ -135,6 +147,16 @@ export default function IssueDetailPage() {
           </div>
 
           <IssueDetail issue={issue} projectKey={project.key} />
+
+          <IssueLabels
+            labels={labels}
+            selectedLabelIds={selectedLabelIds}
+            loading={labelsLoading}
+            savingLabelId={savingLabelId}
+            error={labelsError}
+            onAdd={addLabel}
+            onRemove={removeLabel}
+          />
 
           <EditIssueDialog
             issue={issue}

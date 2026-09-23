@@ -23,7 +23,7 @@ export async function attachLabelToIssues(
   const [issueBelongsToProject] = await db
     .select()
     .from(issues)
-    .where(eq(issues.project_id, projectId))
+    .where(and(eq(issues.id, issueId), eq(issues.project_id, projectId)))
     .limit(1);
 
   if (!issueBelongsToProject) {
@@ -33,7 +33,7 @@ export async function attachLabelToIssues(
   const [labelBelongsToOrganization] = await db
     .select()
     .from(labels)
-    .where(eq(labels.org_id, organizationId))
+    .where(and(eq(labels.id, labelId), eq(labels.org_id, organizationId)))
     .limit(1);
 
   if (!labelBelongsToOrganization) {
@@ -76,11 +76,15 @@ export async function deleteIssueLabel(
 ) {
   const [issueBelongsToProject, labelBelongsToOrganization, issueLabelExists] =
     await Promise.all([
-      db.select().from(issues).where(eq(issues.project_id, projectId)).limit(1),
+      db
+        .select()
+        .from(issues)
+        .where(and(eq(issues.id, issueId), eq(issues.project_id, projectId)))
+        .limit(1),
       db
         .select()
         .from(labels)
-        .where(eq(labels.org_id, organizationId))
+        .where(and(eq(labels.id, labelId), eq(labels.org_id, organizationId)))
         .limit(1),
       db
         .select()

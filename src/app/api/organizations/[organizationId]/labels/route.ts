@@ -41,7 +41,7 @@ export async function GET(
     return NextResponse.json(
       {
         success: true,
-        labels,
+        data: labels,
         message: "Labels Fetched Successfully",
       },
       { status: 200 },
@@ -125,7 +125,7 @@ export async function POST(
     return NextResponse.json(
       {
         success: true,
-        label,
+        data: label,
         message: "Label Created Successfully",
       },
       { status: 201 },

@@ -6,3 +6,4 @@ export { IssueStatusBadge } from "./IssueStatusBadge";
 export { CreateIssueDialog } from "./CreateIssueDialog";
 export { IssueDetail } from "./IssueDetail";
 export { EditIssueDialog } from "./EditIssueDialog";
+export { IssueLabels } from "./IssueLabels";

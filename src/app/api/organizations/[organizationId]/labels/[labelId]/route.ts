@@ -44,7 +44,7 @@ export async function GET(
     return NextResponse.json(
       {
         success: true,
-        label,
+        data: label,
         message: "Label Fetched Successfully",
       },
       { status: 200 },
@@ -132,7 +132,7 @@ export async function PATCH(
     return NextResponse.json(
       {
         success: true,
-        label,
+        data: label,
         message: "Label Updated Successfully",
       },
       { status: 200 },
@@ -205,7 +205,7 @@ export async function DELETE(
     return NextResponse.json(
       {
         success: true,
-        label,
+        data: label,
         message: "Label deleted Successfully",
       },
       { status: 200 },
