@@ -10,10 +10,14 @@ import { useProject } from "@/features/projects/useProject";
 import {
   CreateIssueDialog,
   IssueEmptyState,
+  IssueFilters,
   IssueList,
+  IssuePagination,
 } from "@/features/issues/components";
 import { useIssues } from "@/features/issues/issue.hooks";
 import { useState } from "react";
+import { useProjectMembers } from "@/features/project-members/useProjectMembers";
+import { useOrganizationLabels } from "@/features/labels/label.hooks";
 
 export default function ProjectIssuesPage() {
   const params = useParams<{
@@ -31,10 +35,21 @@ export default function ProjectIssuesPage() {
 
   const {
     issues,
+    pagination,
+    filters,
+    setFilters,
+    setPage,
+    clearFilters,
     loading: issuesLoading,
     error: issuesError,
     create,
   } = useIssues(organizationId, projectId);
+
+  const { members: projectMembers, isLoading: membersLoading } =
+    useProjectMembers(organizationId, projectId);
+
+  const { labels, loading: labelsLoading } =
+    useOrganizationLabels(organizationId);
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
@@ -92,6 +107,14 @@ export default function ProjectIssuesPage() {
             </div>
           )}
 
+          <IssueFilters
+            filters={filters}
+            projectMembers={projectMembers}
+            labels={labels}
+            onChange={setFilters}
+            onClear={clearFilters}
+          />
+
           {!issuesLoading && issuesError && (
             <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
               {issuesError}
@@ -103,11 +126,15 @@ export default function ProjectIssuesPage() {
           )}
 
           {!issuesLoading && !issuesError && issues.length > 0 && (
-            <IssueList
-              issues={issues}
-              organizationId={organizationId}
-              projectId={projectId}
-            />
+            <>
+              <IssueList
+                issues={issues}
+                organizationId={organizationId}
+                projectId={projectId}
+              />
+
+              <IssuePagination pagination={pagination} onPageChange={setPage} />
+            </>
           )}
         </div>
 

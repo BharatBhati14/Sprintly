@@ -1,9 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-
 import { deleteIssue, getIssue, updateIssue } from "./issue.api";
-
 import type { Issue, UpdateIssueInput } from "./issue.types";
 
 export function useIssue(

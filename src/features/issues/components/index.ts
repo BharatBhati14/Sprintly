@@ -7,3 +7,5 @@ export { CreateIssueDialog } from "./CreateIssueDialog";
 export { IssueDetail } from "./IssueDetail";
 export { EditIssueDialog } from "./EditIssueDialog";
 export { IssueLabels } from "./IssueLabels";
+export { IssuePagination } from "./IssuePagination";
+export { IssueFilters } from "./IssueFilters";

@@ -90,3 +90,37 @@ export function useIssueLabels(
     reload: load,
   };
 }
+
+export function useOrganizationLabels(organizationId: string) {
+  const [labels, setLabels] = useState<Label[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadLabels = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const result = await getOrganizationLabels(organizationId);
+
+      setLabels(result);
+    } catch (error) {
+      setError(
+        error instanceof Error ? error.message : "Failed to load labels",
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [organizationId]);
+
+  useEffect(() => {
+    loadLabels();
+  }, [loadLabels]);
+
+  return {
+    labels,
+    loading,
+    error,
+    reload: loadLabels,
+  };
+}

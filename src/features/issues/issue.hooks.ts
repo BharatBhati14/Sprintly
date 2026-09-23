@@ -7,6 +7,7 @@ import { createIssue, deleteIssue, getIssues, updateIssue } from "./issue.api";
 import type {
   CreateIssueInput,
   Issue,
+  IssueFilters,
   IssuePagination,
   UpdateIssueInput,
 } from "./issue.types";
@@ -14,7 +15,12 @@ import type {
 export function useIssues(organizationId: string, projectId: string) {
   const [issues, setIssues] = useState<Issue[]>([]);
   const [pagination, setPagination] = useState<IssuePagination | null>(null);
-
+  const [filters, setFiltersState] = useState<IssueFilters>({
+    page: 1,
+    limit: 20,
+    sortBy: "createdAt",
+    sortOrder: "desc",
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,7 +29,7 @@ export function useIssues(organizationId: string, projectId: string) {
       setLoading(true);
       setError(null);
 
-      const response = await getIssues(organizationId, projectId);
+      const response = await getIssues(organizationId, projectId, filters);
 
       setIssues(response.data);
       setPagination(response.meta.pagination ?? null);
@@ -34,46 +40,67 @@ export function useIssues(organizationId: string, projectId: string) {
     } finally {
       setLoading(false);
     }
-  }, [organizationId, projectId]);
+  }, [organizationId, projectId, filters]);
 
   useEffect(() => {
     loadIssues();
   }, [loadIssues]);
 
+  const setFilters = useCallback((nextFilters: Partial<IssueFilters>) => {
+    setFiltersState((current) => ({
+      ...current,
+      ...nextFilters,
+      page: 1,
+    }));
+  }, []);
+
+  const setPage = useCallback((page: number) => {
+    setFiltersState((current) => ({
+      ...current,
+      page,
+    }));
+  }, []);
+
+  const clearFilters = useCallback(() => {
+    setFiltersState({
+      page: 1,
+      limit: 20,
+      sortBy: "createdAt",
+      sortOrder: "desc",
+    });
+  }, []);
+
   const create = async (input: CreateIssueInput) => {
-    const response = await createIssue(organizationId, projectId, input);
+    const issue = await createIssue(organizationId, projectId, input);
 
-    setIssues((current) => [response, ...current]);
+    await loadIssues();
 
-    return response;
+    return issue;
   };
 
   const update = async (issueId: string, input: UpdateIssueInput) => {
-    const response = await updateIssue(
-      organizationId,
-      projectId,
-      issueId,
-      input,
-    );
+    const issue = await updateIssue(organizationId, projectId, issueId, input);
 
-    setIssues((current) =>
-      current.map((issue) => (issue.id === issueId ? response : issue)),
-    );
+    await loadIssues();
 
-    return response;
+    return issue;
   };
 
   const remove = async (issueId: string) => {
     await deleteIssue(organizationId, projectId, issueId);
 
-    setIssues((current) => current.filter((issue) => issue.id !== issueId));
+    await loadIssues();
   };
 
   return {
     issues,
     pagination,
+    filters,
     loading,
     error,
+    setFilters,
+    setPage,
+    clearFilters,
     create,
     update,
     remove,

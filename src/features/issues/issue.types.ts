@@ -68,6 +68,7 @@ export interface IssueFilters {
   status?: IssueStatus;
   priority?: IssuePriority;
   assigneeId?: string;
+  unassigned?: boolean;
   labelId?: string;
   page?: number;
   limit?: number;

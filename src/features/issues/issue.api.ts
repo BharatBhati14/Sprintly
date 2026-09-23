@@ -39,6 +39,10 @@ export async function getIssues(
     searchParams.set("assigneeId", filters.assigneeId);
   }
 
+  if (filters?.unassigned) {
+    searchParams.set("unassigned", "true");
+  }
+
   if (filters?.labelId) {
     searchParams.set("labelId", filters.labelId);
   }
