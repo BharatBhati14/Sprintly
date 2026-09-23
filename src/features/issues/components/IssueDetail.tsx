@@ -87,7 +87,7 @@ export function IssueDetail({ issue, projectKey }: IssueDetailProps) {
               Reporter
             </p>
 
-            <div className="mt-1 text-sm text-zinc-700">
+            <div className="mt-1 text-sm text-zinc-700 flex items-center gap-2">
               <p>{issue.reporter?.name || "Unknown"}</p>
               {issue.reporter && (
                 <p className="text-xs text-zinc-400">{issue.reporter.email}</p>

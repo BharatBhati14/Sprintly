@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import { Button, Dialog, Input, Textarea } from "@/components/ui";
 import type { Issue, IssuePriority, IssueStatus } from "../issue.types";
+import { ProjectMember } from "@/features/project-members/project-member.types";
 
 interface EditIssueDialogProps {
   issue: Issue;
+  projectMembers: ProjectMember[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (input: {
@@ -13,6 +15,7 @@ interface EditIssueDialogProps {
     description: string | null;
     status: IssueStatus;
     priority: IssuePriority;
+    assigneeId: string | null;
     dueDate: string | null;
   }) => Promise<void>;
 }
@@ -32,6 +35,7 @@ export function EditIssueDialog({
   open,
   onOpenChange,
   onSave,
+  projectMembers,
 }: EditIssueDialogProps) {
   const [title, setTitle] = useState(issue.title);
   const [description, setDescription] = useState(issue.desc ?? "");
@@ -40,6 +44,7 @@ export function EditIssueDialog({
   const [dueDate, setDueDate] = useState(
     issue.dueDate ? issue.dueDate.slice(0, 10) : "",
   );
+  const [assigneeId, setAssigneeId] = useState<string | null>(issue.assigneeId);
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,6 +57,7 @@ export function EditIssueDialog({
     setStatus(issue.status);
     setPriority(issue.priority);
     setDueDate(issue.dueDate ? issue.dueDate.slice(0, 10) : "");
+    setAssigneeId(issue.assigneeId);
     setError(null);
   }, [issue, open]);
 
@@ -73,6 +79,7 @@ export function EditIssueDialog({
         status,
         priority,
         dueDate: dueDate || null,
+        assigneeId,
       });
 
       onOpenChange(false);
@@ -88,7 +95,7 @@ export function EditIssueDialog({
   return (
     <Dialog
       open={open}
-      //   onOpenChange={onOpenChange}
+        // onOpenChange={false}
       onClose={() => onOpenChange}
       title="Edit issue"
       description="Update the issue details and workflow state."
@@ -153,6 +160,27 @@ export function EditIssueDialog({
               {priorities.map((value) => (
                 <option key={value} value={value}>
                   {value}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium text-zinc-900">
+              Assignee
+            </label>
+
+            <select
+              value={assigneeId ?? ""}
+              onChange={(event) => setAssigneeId(event.target.value || null)}
+              disabled={saving}
+              className="h-10 w-full rounded-lg border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none transition focus:border-zinc-400"
+            >
+              <option value="">Unassigned</option>
+
+              {projectMembers.map((member) => (
+                <option key={member.userId} value={member.userId}>
+                  {member.name} ({member.email})
                 </option>
               ))}
             </select>

@@ -16,6 +16,7 @@ import { useIssue } from "@/features/issues/useIssue";
 import { useProject } from "@/features/projects/useProject";
 import type { UpdateIssueInput } from "@/features/issues/issue.types";
 import { useState } from "react";
+import { useProjectMembers } from "@/features/project-members/useProjectMembers";
 
 export default function IssueDetailPage() {
   const params = useParams<{
@@ -43,6 +44,9 @@ export default function IssueDetailPage() {
     remove,
   } = useIssue(organizationId, projectId, issueId);
 
+  const { members: projectMembers, isLoading: membersLoading } =
+    useProjectMembers(organizationId, projectId);
+
   const handleUpdate = async (input: UpdateIssueInput) => {
     await update(input);
   };
@@ -67,7 +71,7 @@ export default function IssueDetailPage() {
     }
   };
 
-  if (projectLoading || issueLoading) {
+  if (projectLoading || issueLoading || membersLoading) {
     return (
       <AppShell>
         <div className="space-y-4">
@@ -134,6 +138,7 @@ export default function IssueDetailPage() {
 
           <EditIssueDialog
             issue={issue}
+            projectMembers={projectMembers}
             open={editOpen}
             onOpenChange={setEditOpen}
             onSave={handleUpdate}
