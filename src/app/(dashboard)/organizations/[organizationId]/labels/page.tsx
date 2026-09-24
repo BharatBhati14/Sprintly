@@ -8,6 +8,8 @@ import { Button, Card, Skeleton } from "@/components/ui";
 
 import {
   CreateLabelDialog,
+  EditLabelDialog,
+  DeleteLabelDialog,
   LabelEmptyState,
   LabelList,
 } from "@/features/labels/components";
@@ -17,6 +19,7 @@ import { useOrganization } from "@/features/organizations/useOrganization";
 import { useAuth } from "@/features/auth/auth.hooks";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import { Label } from "@/features/labels/label.types";
 
 export default function OrganizationLabelsPage() {
   const params = useParams<{
@@ -44,6 +47,8 @@ export default function OrganizationLabelsPage() {
   } = useOrganizationLabels(organizationId);
 
   const [createOpen, setCreateOpen] = useState(false);
+  const [editLabel, setEditLabel] = useState<Label | null>(null);
+  const [deleteLabelState, setDeleteLabelState] = useState<Label | null>(null);
 
   const currentMember = members?.find((member) => member.userId === user?.id);
 
@@ -140,10 +145,10 @@ export default function OrganizationLabelsPage() {
             labels={labels}
             canManage={canManage}
             onEdit={(label) => {
-              console.log("Edit label:", label);
+              setEditLabel(label);
             }}
             onDelete={(label) => {
-              console.log("Delete label:", label);
+              setDeleteLabelState(label);
             }}
           />
         )}
@@ -154,6 +159,28 @@ export default function OrganizationLabelsPage() {
         open={createOpen}
         onOpenChange={setCreateOpen}
         onCreate={createLabel}
+      />
+
+      <EditLabelDialog
+        open={editLabel !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditLabel(null);
+          }
+        }}
+        label={editLabel}
+        onUpdate={updateLabel}
+      />
+
+      <DeleteLabelDialog
+        open={deleteLabelState !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleteLabelState(null);
+          }
+        }}
+        label={deleteLabelState}
+        onDelete={deleteLabel}
       />
     </AppShell>
   );

@@ -130,10 +130,6 @@ export default function OrganizationPage() {
             description={`@${organization.slug}`}
             actions={
               canManageMembers ? (
-                // <Button variant="secondary" className="gap-2">
-                //   <Settings className="h-4 w-4" />
-                //   Settings
-                // </Button>
                 <Button
                   type="button"
                   variant="outline"
@@ -146,15 +142,15 @@ export default function OrganizationPage() {
             }
           />
 
-          <div className=" border-b border-zinc-200 pb-6">
-            <Button type="button" variant="primary" className="mr-6">
+          <div className=" border-b border-zinc-200 pb-6 flex items-center flex-wrap gap-4">
+            <Button type="button" variant="primary">
               <Layers className="h-4 w-4" />
               <Link href={`/organizations/${organizationId}/projects`}>
                 View Projects
               </Link>{" "}
             </Button>
 
-            <Button type="button" variant="secondary" className="mr-6">
+            <Button type="button" variant="secondary">
               <Tags className="h-4 w-4" />
               <Link href={`/organizations/${organizationId}/labels`}>
                 Labels
