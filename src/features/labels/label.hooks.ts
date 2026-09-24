@@ -3,11 +3,15 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   attachIssueLabel,
+  createOrganizationLabel,
+  deleteOrganizationLabel,
   getIssueLabels,
   getOrganizationLabels,
   removeIssueLabel,
+  updateOrganizationLabel,
 } from "./label.api";
 import type { Label } from "./label.types";
+import type { CreateLabelInput, UpdateLabelInput } from "./label.validation";
 
 export function useIssueLabels(
   organizationId: string,
@@ -117,10 +121,70 @@ export function useOrganizationLabels(organizationId: string) {
     loadLabels();
   }, [loadLabels]);
 
+  const createLabel = useCallback(
+    async (input: CreateLabelInput) => {
+      try {
+        setError(null);
+
+        await createOrganizationLabel(organizationId, input);
+
+        await loadLabels();
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Failed to create label.";
+
+        setError(message);
+        throw err;
+      }
+    },
+    [organizationId, loadLabels],
+  );
+
+  const updateLabel = useCallback(
+    async (labelId: string, input: UpdateLabelInput) => {
+      try {
+        setError(null);
+
+        await updateOrganizationLabel(organizationId, labelId, input);
+
+        await loadLabels();
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Failed to update label.";
+
+        setError(message);
+        throw err;
+      }
+    },
+    [organizationId, loadLabels],
+  );
+
+  const deleteLabel = useCallback(
+    async (labelId: string) => {
+      try {
+        setError(null);
+
+        await deleteOrganizationLabel(organizationId, labelId);
+
+        await loadLabels();
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Failed to delete label.";
+
+        setError(message);
+        throw err;
+      }
+    },
+    [organizationId, loadLabels],
+  );
+
   return {
     labels,
     loading,
     error,
+    createLabel,
+    updateLabel,
+    deleteLabel,
     reload: loadLabels,
   };
 }

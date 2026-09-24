@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, Layers, Settings, Trash2 } from "lucide-react";
+import { ArrowLeft, Layers, Settings, Tags, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
@@ -151,6 +151,13 @@ export default function OrganizationPage() {
               <Layers className="h-4 w-4" />
               <Link href={`/organizations/${organizationId}/projects`}>
                 View Projects
+              </Link>{" "}
+            </Button>
+
+            <Button type="button" variant="secondary" className="mr-6">
+              <Tags className="h-4 w-4" />
+              <Link href={`/organizations/${organizationId}/labels`}>
+                Labels
               </Link>{" "}
             </Button>
 

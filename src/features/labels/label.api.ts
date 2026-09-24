@@ -1,5 +1,6 @@
 import { apiClient } from "@/lib/api/client";
 import type { Label } from "./label.types";
+import type { CreateLabelInput, UpdateLabelInput } from "./label.validation";
 
 interface BackendLabel {
   id: string;
@@ -30,6 +31,46 @@ export async function getOrganizationLabels(
   );
 
   return response.map(mapLabel);
+}
+
+export async function createOrganizationLabel(
+  organizationId: string,
+  input: CreateLabelInput,
+): Promise<Label> {
+  const response = await apiClient<BackendLabel>(
+    `/api/organizations/${organizationId}/labels`,
+    {
+      method: "POST",
+      body: JSON.stringify(input),
+    },
+  );
+
+  return mapLabel(response);
+}
+
+export async function updateOrganizationLabel(
+  organizationId: string,
+  labelId: string,
+  input: UpdateLabelInput,
+): Promise<Label> {
+  const response = await apiClient<BackendLabel>(
+    `/api/organizations/${organizationId}/labels/${labelId}`,
+    {
+      method: "PATCH",
+      body: JSON.stringify(input),
+    },
+  );
+
+  return mapLabel(response);
+}
+
+export async function deleteOrganizationLabel(
+  organizationId: string,
+  labelId: string,
+): Promise<void> {
+  await apiClient(`/api/organizations/${organizationId}/labels/${labelId}`, {
+    method: "DELETE",
+  });
 }
 
 export async function getIssueLabels(
