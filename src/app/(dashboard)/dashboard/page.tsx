@@ -1,56 +1,131 @@
 "use client";
 
-import { useEffect } from "react";
+import { RefreshCw } from "lucide-react";
+
+import { AppShell } from "@/components/layout";
+import { Button, Card, Skeleton } from "@/components/ui";
+
+import {
+  DashboardStats,
+  IssueStatusOverview,
+  RecentIssues,
+  RecentProjects,
+} from "@/features/dashboard/components";
+
+import { useDashboard } from "@/features/dashboard";
+
+import { useAuth } from "@/features/auth/auth.hooks";
 import { useRouter } from "next/navigation";
 
-import { AppShell, PageHeader } from "@/components/layout";
-import { Skeleton } from "@/components/ui";
-import { useAuth } from "@/features/auth/auth.hooks";
-
 export default function DashboardPage() {
+  const { user } = useAuth();
   const router = useRouter();
+  const { data, loading, error, reload } = useDashboard();
 
-  const { user, isLoading, isAuthenticated } = useAuth();
+  const handleStatNavigation = (
+    type: "projects" | "openIssues" | "assigned" | "dueSoon",
+  ) => {
+    switch (type) {
+      case "projects":
+        router.push("/organizations");
+        break;
 
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.replace("/login");
+      case "openIssues":
+        router.push("/organizations");
+        break;
+
+      case "assigned":
+        router.push("/organizations");
+        break;
+
+      case "dueSoon":
+        router.push("/organizations");
+        break;
     }
-  }, [isLoading, isAuthenticated, router]);
-
-  if (isLoading) {
-    return (
-      <AppShell>
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <Skeleton className="h-8 w-40" />
-          <Skeleton className="mt-3 h-5 w-72" />
-        </div>
-      </AppShell>
-    );
-  }
-
-  if (!isAuthenticated || !user) {
-    return null;
-  }
+  };
 
   return (
     <AppShell>
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <PageHeader
-          title="Dashboard"
-          description={`Welcome back, ${user.name}.`}
-        />
+      <div className="space-y-8 p-4 md:p-6">
+        {/* Header */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
+              Dashboard
+            </h1>
 
-        <div className="mt-6 rounded-lg border border-dashed border-zinc-300 bg-white px-6 py-12 text-center">
-          <h2 className="text-sm font-medium text-zinc-950">
-            Your workspace is ready
-          </h2>
+            <p className="mt-1 text-sm text-zinc-600">
+              Welcome back
+              {user?.name ? `, ${user.name}` : ""}. Here's what's happening
+              across your workspace.
+            </p>
+          </div>
 
-          <p className="mt-1 text-sm text-zinc-500">
-            Create an organization to get started.
-          </p>
+          <Button variant="secondary" onClick={reload} disabled={loading}>
+            <RefreshCw
+              className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`}
+            />
+            Refresh
+          </Button>
         </div>
+
+        {/* Loading */}
+        {loading && <DashboardSkeleton />}
+
+        {/* Error */}
+        {!loading && error && (
+          <Card>
+            <div className="flex flex-col items-center justify-center px-6 py-12 text-center">
+              <h2 className="text-sm font-semibold text-zinc-900">
+                Unable to load dashboard
+              </h2>
+
+              <p className="mt-1 max-w-md text-sm text-zinc-500">{error}</p>
+
+              <Button className="mt-5" onClick={reload}>
+                Try again
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        {/* Content */}
+        {!loading && !error && data && (
+          <>
+            <DashboardStats
+              totals={data.totals}
+              onNavigate={handleStatNavigation}
+            />
+
+            <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+              <IssueStatusOverview data={data} />
+
+              <RecentIssues data={data} />
+            </div>
+
+            <RecentProjects data={data} />
+          </>
+        )}
       </div>
     </AppShell>
+  );
+}
+
+function DashboardSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <Skeleton key={index} className="h-32 rounded-xl" />
+        ))}
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+        <Skeleton className="h-80 rounded-xl" />
+        <Skeleton className="h-80 rounded-xl" />
+      </div>
+
+      <Skeleton className="h-72 rounded-xl" />
+    </div>
   );
 }
