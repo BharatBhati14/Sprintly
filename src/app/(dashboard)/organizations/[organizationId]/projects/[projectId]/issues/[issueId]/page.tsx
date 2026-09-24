@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout";
-import { Button, Card } from "@/components/ui";
+import { Button, Card, useToast } from "@/components/ui";
 import { ProjectShell } from "@/features/projects/components";
 import {
   IssueDetail,
@@ -21,6 +21,7 @@ import { useProjectMembers } from "@/features/project-members/useProjectMembers"
 import { useIssueLabels } from "@/features/labels/label.hooks";
 
 export default function IssueDetailPage() {
+  const { toast } = useToast();
   const params = useParams<{
     organizationId: string;
     projectId: string;
@@ -74,11 +75,21 @@ export default function IssueDetailPage() {
 
     try {
       await remove();
-
+      toast({
+        type: "success",
+        title: "Issue deleted",
+        message: "Issue was deleted successfully.",
+      });
       router.replace(
         `/organizations/${organizationId}/projects/${projectId}/issues`,
       );
     } catch (error) {
+      toast({
+        type: "error",
+        title: "Failed to delete issue",
+        message:
+          error instanceof Error ? error.message : "Something went wrong.",
+      });
       console.error("Failed to delete issue:", error);
     }
   };

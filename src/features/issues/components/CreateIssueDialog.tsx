@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 
-import { Button, Input, Textarea } from "@/components/ui";
+import { Button, Input, Textarea, useToast } from "@/components/ui";
 import { createIssueSchema, IssueStatus } from "../issue.validation";
 import type { CreateIssueInput, IssuePriority } from "../issue.types";
 
@@ -27,6 +27,7 @@ export function CreateIssueDialog({
   onClose,
   onCreate,
 }: CreateIssueDialogProps) {
+  const { toast } = useToast();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<IssuePriority>("MEDIUM");
@@ -82,6 +83,11 @@ export function CreateIssueDialog({
         priority: result.data.priority,
         status: result.data.status,
       });
+      toast({
+        type: "success",
+        title: "issue created",
+        message: "Issue was created successfully.",
+      });
 
       reset();
       onClose();
@@ -89,6 +95,12 @@ export function CreateIssueDialog({
       setError(
         error instanceof Error ? error.message : "Failed to create issue",
       );
+      toast({
+        type: "error",
+        title: "Failed to create issue",
+        message:
+          error instanceof Error ? error.message : "Something went wrong.",
+      });
     } finally {
       setSubmitting(false);
     }

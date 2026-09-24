@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import { Mail, UserPlus } from "lucide-react";
-
 import { Button, Input } from "@/components/ui";
-
+import { useToast } from "@/components/ui";
 import { createOrganizationInvitation } from "@/features/organizations/organization.api";
 import { invitationSchema } from "@/features/invitations/validations/invitation.validation";
 import { InvitationSuccessDialog } from "./InvitationSuccessDialog";
@@ -22,6 +21,7 @@ export function InviteMemberDialog({
   open,
   onClose,
 }: InviteMemberDialogProps) {
+  const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [invitedEmail, setInvitedEmail] = useState("");
   const [error, setError] = useState("");
@@ -56,11 +56,22 @@ export function InviteMemberDialog({
       setInvitedEmail(result.data.email);
       setInvitationLink(link);
       setShowSuccess(true);
+      toast({
+        type: "success",
+        title: "invitation created",
+        message: "Invitation was created successfully.",
+      });
       setEmail("");
     } catch (error) {
       setError(
         error instanceof Error ? error.message : "Failed to create invitation",
       );
+      toast({
+        type: "error",
+        title: "Failed to create invitation",
+        message:
+          error instanceof Error ? error.message : "Something went wrong.",
+      });
     } finally {
       setIsSubmitting(false);
     }

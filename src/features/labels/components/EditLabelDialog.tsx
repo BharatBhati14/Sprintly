@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { Button, Dialog, Input } from "@/components/ui";
+import { Button, Dialog, Input, useToast } from "@/components/ui";
 
 import type { Label } from "../label.types";
 import { updateLabelSchema, type UpdateLabelInput } from "../label.validation";
@@ -20,6 +20,7 @@ export function EditLabelDialog({
   label,
   onUpdate,
 }: EditLabelDialogProps) {
+  const { toast } = useToast();
   const [name, setName] = useState("");
   const [color, setColor] = useState("#6366f1");
   const [error, setError] = useState<string | null>(null);
@@ -53,10 +54,19 @@ export function EditLabelDialog({
       setError(null);
 
       await onUpdate(label.id, result.data);
-
+      toast({
+        type: "success",
+        title: "Label updated",
+        message: "Label was updated successfully.",
+      });
       onOpenChange(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update label.");
+      toast({
+        type: "error",
+        title: "Failed to update label",
+        message: err instanceof Error ? err.message : "Something went wrong.",
+      });
     } finally {
       setSubmitting(false);
     }

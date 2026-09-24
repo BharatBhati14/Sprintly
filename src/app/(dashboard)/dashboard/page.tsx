@@ -3,7 +3,7 @@
 import { RefreshCw } from "lucide-react";
 
 import { AppShell } from "@/components/layout";
-import { Button, Card, Skeleton } from "@/components/ui";
+import { Button, Card, Skeleton, useToast } from "@/components/ui";
 
 import {
   DashboardStats,
@@ -21,6 +21,7 @@ export default function DashboardPage() {
   const { user } = useAuth();
   const router = useRouter();
   const { data, loading, error, reload } = useDashboard();
+  const { toast } = useToast();
 
   const handleStatNavigation = (
     type: "projects" | "openIssues" | "assigned" | "dueSoon",
@@ -47,6 +48,17 @@ export default function DashboardPage() {
   return (
     <AppShell>
       <div className="space-y-8 p-4 md:p-6">
+        <Button
+  onClick={() =>
+    toast({
+      type: "success",
+      title: "Test successful",
+      message: "Toast notifications are working.",
+    })
+  }
+>
+  Test toast
+</Button>
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { AlertTriangle } from "lucide-react";
-import { Button, Dialog } from "@/components/ui";
+import { Button, Dialog, useToast } from "@/components/ui";
 import type { Project } from "../project.types";
 
 interface DeleteProjectDialogProps {
@@ -18,6 +18,7 @@ export function DeleteProjectDialog({
   onClose,
   onDelete,
 }: DeleteProjectDialogProps) {
+  const { toast } = useToast();
   const [confirmation, setConfirmation] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -40,10 +41,22 @@ export function DeleteProjectDialog({
     try {
       setIsDeleting(true);
       await onDelete();
+
+      toast({
+        type: "success",
+        title: "Project deleted",
+        message: "Project was deleted successfully.",
+      });
     } catch (error) {
       setError(
         error instanceof Error ? error.message : "Unable to delete project.",
       );
+      toast({
+        type: "error",
+        title: "Failed to delete project",
+        message:
+          error instanceof Error ? error.message : "Something went wrong.",
+      });
     } finally {
       setIsDeleting(false);
     }

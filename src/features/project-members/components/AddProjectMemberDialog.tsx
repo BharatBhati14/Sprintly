@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Dialog, Button } from "@/components/ui";
+import { Dialog, Button, useToast } from "@/components/ui";
 import type { OrganizationMember } from "@/features/organizations/organization.types";
 
 interface AddProjectMemberDialogProps {
@@ -19,8 +19,8 @@ export function AddProjectMemberDialog({
   projectMemberIds,
   onAdd,
 }: AddProjectMemberDialogProps) {
+  const { toast } = useToast();
   const [selectedUserId, setSelectedUserId] = useState("");
-
   const [error, setError] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
 
@@ -51,12 +51,22 @@ export function AddProjectMemberDialog({
       setIsAdding(true);
 
       await onAdd(selectedUserId);
-
+      toast({
+        type: "success",
+        title: "member added",
+        message: "Member was added successfully.",
+      });
       handleClose();
     } catch (error) {
       setError(
         error instanceof Error ? error.message : "Unable to add member.",
       );
+      toast({
+        type: "error",
+        title: "Failed to add member",
+        message:
+          error instanceof Error ? error.message : "Something went wrong.",
+      });
     } finally {
       setIsAdding(false);
     }

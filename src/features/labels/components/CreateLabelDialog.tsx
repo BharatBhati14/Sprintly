@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { Button, Dialog, Input } from "@/components/ui";
+import { Button, Dialog, Input, useToast } from "@/components/ui";
 
 import { labelSchema, type CreateLabelInput } from "../label.validation";
 
@@ -17,6 +17,7 @@ export function CreateLabelDialog({
   onOpenChange,
   onCreate,
 }: CreateLabelDialogProps) {
+  const { toast } = useToast();
   const [name, setName] = useState("");
   const [color, setColor] = useState("#6366f1");
   const [error, setError] = useState<string | null>(null);
@@ -49,10 +50,19 @@ export function CreateLabelDialog({
       setError(null);
 
       await onCreate(result.data);
-
+      toast({
+        type: "success",
+        title: "Label created",
+        message: "Label was created successfully.",
+      });
       onOpenChange(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create label.");
+      toast({
+        type: "error",
+        title: "Failed to create label",
+        message: err instanceof Error ? err.message : "Something went wrong.",
+      });
     } finally {
       setSubmitting(false);
     }

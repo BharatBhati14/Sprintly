@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Save } from "lucide-react";
-
+import { useToast } from "@/components/ui";
 import { Button, Input } from "@/components/ui";
 import { ApiError } from "@/lib/api/errors";
 
@@ -21,6 +21,7 @@ export function OrganizationSettingsForm({
   canManage,
   onSave,
 }: OrganizationSettingsFormProps) {
+  const { toast } = useToast();
   const [name, setName] = useState(organization.name);
   const [slug, setSlug] = useState(organization.slug);
 
@@ -75,6 +76,12 @@ export function OrganizationSettingsForm({
       setTimeout(() => {
         setSuccess(false);
       }, 2500);
+
+      toast({
+        type: "success",
+        title: "Organization updated",
+        message: "Your organization was updated successfully.",
+      });
     } catch (error) {
       if (error instanceof ApiError) {
         setErrors({
@@ -85,6 +92,13 @@ export function OrganizationSettingsForm({
           form: "Unable to update organization.",
         });
       }
+
+      toast({
+        type: "error",
+        title: "Failed to update organization",
+        message:
+          error instanceof Error ? error.message : "Something went wrong.",
+      });
     } finally {
       setIsSaving(false);
     }

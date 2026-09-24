@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Input, Textarea } from "@/components/ui";
+import { Button, Input, Textarea, useToast } from "@/components/ui";
 import { projectSchema } from "../project.validation";
 import type { Project, UpdateProjectInput } from "../project.types";
 
@@ -14,6 +14,7 @@ export function ProjectSettingsForm({
   project,
   onSave,
 }: ProjectSettingsFormProps) {
+  const { toast } = useToast();
   const [name, setName] = useState(project.name);
   const [key, setKey] = useState(project.key);
   const [description, setDescription] = useState(project.description ?? "");
@@ -47,10 +48,22 @@ export function ProjectSettingsForm({
         key: result.data.key,
         description: result.data.description,
       });
+
+      toast({
+        type: "success",
+        title: "Project updated",
+        message: "Project was updated successfully.",
+      });
     } catch (error) {
       setError(
         error instanceof Error ? error.message : "Unable to update project.",
       );
+      toast({
+        type: "error",
+        title: "Failed to update project",
+        message:
+          error instanceof Error ? error.message : "Something went wrong.",
+      });
     } finally {
       setIsSaving(false);
     }

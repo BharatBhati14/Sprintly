@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { AlertTriangle, Trash2 } from "lucide-react";
-
+import { useToast } from "@/components/ui";
 import { Button, Dialog, Input } from "@/components/ui";
 import { ApiError } from "@/lib/api/errors";
 
@@ -19,6 +19,7 @@ export function DeleteOrganizationDialog({
   onClose,
   onDelete,
 }: DeleteOrganizationDialogProps) {
+  const { toast } = useToast();
   const [confirmation, setConfirmation] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,12 +36,24 @@ export function DeleteOrganizationDialog({
       setError(null);
 
       await onDelete();
+
+      toast({
+        type: "success",
+        title: "Organization deleted",
+        message: "Your organization was deleted successfully.",
+      });
     } catch (error) {
       if (error instanceof ApiError) {
         setError(error.message);
       } else {
         setError("Unable to delete organization.");
       }
+      toast({
+        type: "error",
+        title: "Failed to delete organization",
+        message:
+          error instanceof Error ? error.message : "Something went wrong.",
+      });
 
       setIsDeleting(false);
     }

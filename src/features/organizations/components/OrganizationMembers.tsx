@@ -8,6 +8,7 @@ import type {
   OrganizationRole,
 } from "../organization.types";
 import { OrganizationRoleBadge } from "./OrganizationRoleBadge";
+import { useToast } from "@/components/ui";
 
 interface OrganizationMembersProps {
   members: OrganizationMember[];
@@ -26,6 +27,7 @@ export function OrganizationMembers({
   onRoleChange,
   onRemove,
 }: OrganizationMembersProps) {
+  const { toast } = useToast();
   const [loadingUserId, setLoadingUserId] = useState<string | null>(null);
   const [openMenuUserId, setOpenMenuUserId] = useState<string | null>(null);
 
@@ -38,6 +40,12 @@ export function OrganizationMembers({
       setOpenMenuUserId(null);
 
       await onRoleChange(userId, role);
+
+      toast({
+        type: "success",
+        title: "Role changed",
+        message: "Member role changed successfully.",
+      });
     } finally {
       setLoadingUserId(null);
     }
@@ -59,6 +67,11 @@ export function OrganizationMembers({
       setOpenMenuUserId(null);
 
       await onRemove(userId);
+      toast({
+        type: "success",
+        title: "Member removed",
+        message: "Member was removed successfully.",
+      });
     } finally {
       setLoadingUserId(null);
     }

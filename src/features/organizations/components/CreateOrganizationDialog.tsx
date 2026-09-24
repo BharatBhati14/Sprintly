@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { X } from "lucide-react";
-
+import { useToast } from "@/components/ui";
 import { ApiError } from "@/lib/api/errors";
 import { Button, Input } from "@/components/ui";
 
@@ -24,6 +24,7 @@ export function CreateOrganizationDialog({
 
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
 
   if (!open) {
     return null;
@@ -55,6 +56,11 @@ export function CreateOrganizationDialog({
         ...(trimmedSlug ? { slug: trimmedSlug } : {}),
       });
 
+      toast({
+        type: "success",
+        title: "Organization created",
+        message: "Your organization was created successfully.",
+      });
       setName("");
       setSlug("");
       onClose();
@@ -64,6 +70,12 @@ export function CreateOrganizationDialog({
       } else {
         setError("Unable to create organization.");
       }
+      toast({
+        type: "error",
+        title: "Failed to create organization",
+        message:
+          error instanceof Error ? error.message : "Something went wrong.",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -113,16 +125,6 @@ export function CreateOrganizationDialog({
             disabled={isSubmitting}
             autoFocus
           />
-
-          {/* <Input
-            id="organization-slug"
-            name="slug"
-            label="Slug"
-            placeholder="acme"
-            value={slug}
-            onChange={(event) => setSlug(event.target.value)}
-            disabled={isSubmitting}
-          /> */}
 
           {error && (
             <div

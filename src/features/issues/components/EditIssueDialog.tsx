@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button, Dialog, Input, Textarea } from "@/components/ui";
+import { Button, Dialog, Input, Textarea, useToast } from "@/components/ui";
 import type { Issue, IssuePriority, IssueStatus } from "../issue.types";
 import { ProjectMember } from "@/features/project-members/project-member.types";
 
@@ -37,6 +37,7 @@ export function EditIssueDialog({
   onSave,
   projectMembers,
 }: EditIssueDialogProps) {
+  const { toast } = useToast();
   const [title, setTitle] = useState(issue.title);
   const [description, setDescription] = useState(issue.desc ?? "");
   const [status, setStatus] = useState<IssueStatus>(issue.status);
@@ -81,12 +82,23 @@ export function EditIssueDialog({
         dueDate: dueDate || null,
         assigneeId,
       });
+      toast({
+        type: "success",
+        title: "Issue updated",
+        message: "Issue was updated successfully.",
+      });
 
       onOpenChange(false);
     } catch (error) {
       setError(
         error instanceof Error ? error.message : "Failed to update issue.",
       );
+      toast({
+        type: "error",
+        title: "Failed to update issue",
+        message:
+          error instanceof Error ? error.message : "Something went wrong.",
+      });
     } finally {
       setSaving(false);
     }
@@ -95,7 +107,7 @@ export function EditIssueDialog({
   return (
     <Dialog
       open={open}
-        // onOpenChange={false}
+      // onOpenChange={false}
       onClose={() => onOpenChange}
       title="Edit issue"
       description="Update the issue details and workflow state."

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Dialog, Button, Input, Textarea } from "@/components/ui";
 import { projectSchema } from "../project.validation";
 import type { CreateProjectInput } from "../project.types";
+import { useToast } from "@/components/ui";
 
 interface CreateProjectDialogProps {
   open: boolean;
@@ -16,6 +17,7 @@ export function CreateProjectDialog({
   onClose,
   onCreate,
 }: CreateProjectDialogProps) {
+  const { toast } = useToast();
   const [name, setName] = useState("");
   const [key, setKey] = useState("");
   const [description, setDescription] = useState("");
@@ -58,12 +60,24 @@ export function CreateProjectDialog({
 
       await onCreate(result.data);
 
+      toast({
+        type: "success",
+        title: "Project created",
+        message: "Project was created successfully.",
+      });
+
       resetForm();
       onClose();
     } catch (error) {
       setError(
         error instanceof Error ? error.message : "Unable to create project.",
       );
+      toast({
+        type: "error",
+        title: "Failed to create project",
+        message:
+          error instanceof Error ? error.message : "Something went wrong.",
+      });
     } finally {
       setIsSubmitting(false);
     }

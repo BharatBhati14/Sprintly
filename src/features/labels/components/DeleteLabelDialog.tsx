@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { AlertTriangle } from "lucide-react";
-import { Button, Dialog } from "@/components/ui";
+import { Button, Dialog, useToast } from "@/components/ui";
 import type { Label } from "../label.types";
 
 interface DeleteLabelDialogProps {
@@ -18,6 +18,7 @@ export function DeleteLabelDialog({
   label,
   onDelete,
 }: DeleteLabelDialogProps) {
+  const { toast } = useToast();
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -29,10 +30,19 @@ export function DeleteLabelDialog({
       setError(null);
 
       await onDelete(label.id);
-
+      toast({
+        type: "success",
+        title: "Label deleted",
+        message: "Label was deleted successfully.",
+      });
       onOpenChange(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete label.");
+      toast({
+        type: "error",
+        title: "Failed to delete label",
+        message: err instanceof Error ? err.message : "Something went wrong.",
+      });
     } finally {
       setDeleting(false);
     }
