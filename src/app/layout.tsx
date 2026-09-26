@@ -15,8 +15,40 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sprintly",
-  description: "A milti tenant project management system",
+  metadataBase: new URL("https://sprintly.vercel.app"),
+
+  title: {
+    default: "Sprintly",
+    template: "%s | Sprintly",
+  },
+  description:
+    "Sprintly is a multi-tenant project management system for managing projects, teams, tasks, and workflows.",
+
+  applicationName: "Sprintly",
+
+  openGraph: {
+    type: "website",
+    siteName: "Sprintly",
+    title: "Sprintly",
+    description:
+      "A multi-tenant project management system for managing projects, teams, tasks, and workflows.",
+    images: [
+      {
+        url: "/preview.png",
+        width: 1200,
+        height: 630,
+        alt: "Sprintly - Multi-tenant Project Management System",
+      },
+    ],
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "Sprintly",
+    description:
+      "A multi-tenant project management system for managing projects, teams, tasks, and workflows.",
+    images: ["/preview.png"],
+  },
 };
 
 export default function RootLayout({

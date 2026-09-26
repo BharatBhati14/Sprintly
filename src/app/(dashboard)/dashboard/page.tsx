@@ -48,17 +48,17 @@ export default function DashboardPage() {
   return (
     <AppShell>
       <div className="space-y-8 p-4 md:p-6">
-        <Button
-  onClick={() =>
-    toast({
-      type: "success",
-      title: "Test successful",
-      message: "Toast notifications are working.",
-    })
-  }
->
-  Test toast
-</Button>
+        {/* <Button
+          onClick={() =>
+            toast({
+              type: "success",
+              title: "Test successful",
+              message: "Toast notifications are working.",
+            })
+          }
+        >
+          Test toast
+        </Button> */}
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
